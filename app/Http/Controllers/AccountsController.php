@@ -10,6 +10,8 @@ use App\Models\Returns;
 use App\Models\ReturnPurchase;
 use App\Models\Expense;
 use App\Models\Payroll;
+use App\Models\Medicine_Activity;
+use App\Models\Docter;
 use App\Models\MoneyTransfer;
 use DB;
 use Illuminate\Validation\Rule;
@@ -30,6 +32,20 @@ class AccountsController extends Controller
         else
             return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
     }
+
+    public function medical($id)
+    {
+        $role = Role::find(Auth::user()->role_id);
+        if($role->hasPermissionTo('account-index')){
+            $lims_account_all = Medicine_Activity::where('account_id', $id)
+            ->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')->get();
+          // dd( $lims_account_all );
+            return view('backend.account.medicalacc', compact('lims_account_all'));
+        }
+        else
+            return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
+    }
+
 
     public function create()
     {

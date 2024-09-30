@@ -546,12 +546,13 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::post('coupons/deletebyselection', 'deleteBySelection');
     });
     Route::resource('coupons', CouponController::class);
-
+    
 
     //accounting routes
     Route::controller(AccountsController::class)->group(function () {
         Route::get('make-default/{id}', 'makeDefault');
         Route::get('balancesheet', 'balanceSheet')->name('accounts.balancesheet');
+        Route::post('account-medical/{id}', 'medical')->name('accounts.medicals');
         Route::post('account-statement', 'accountStatement')->name('accounts.statement');
     });
     Route::resource('accounts', AccountsController::class);

@@ -12,18 +12,27 @@ class MedicineActivity extends Controller
 {
 
 
-    public function index()
+    public function index(Request $request)
     {
-     $lims_brand_all = Medicine_Activity::where('medicine__activities.is_active', 1)
-    ->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')
-    ->where('docters.is_active', 1)
-    // ->select('medicine_activity.*', 'docters.name as doctor_name') // Select fields as needed
-    ->get();
+   
+        if ($request->input('starting_date')) {
+            $starting_date = $request->input('starting_date');
+            $ending_date = $request->input('ending_date');
+        } else {
+            $starting_date = date("Y-m-d", strtotime('-1 year'));  // 1 year back from today
+            $ending_date = date("Y-m-d");  // Today's date
+        }
         
+        $lims_brand_all = Medicine_Activity::where('medicine__activities.is_active', 1)
+            ->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')
+            ->where('docters.id', 12)
+            ->whereBetween('medicine__activities._date', [$starting_date, $ending_date])  // Date range filter
+            ->select('docters.*', 'medicine__activities.id as m_id', 'medicine__activities._date', 'medicine__activities.activity', 'medicine__activities.amount')
+            ->get();
           $lims_docter = Docter::where('is_active', 1)->get();
         
             $lims_account = Account::where('is_active', 1)->get();
-        return view('backend.medicine_activity.create', compact('lims_brand_all','lims_docter','lims_account'));
+        return view('backend.medicine_activity.create', compact('lims_brand_all','lims_docter','lims_account','starting_date', 'ending_date'));
     }
 
     public function store(Request $request)

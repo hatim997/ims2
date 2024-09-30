@@ -16,6 +16,41 @@
 
     <section>
         <div class="container-fluid">
+            <div class="card">
+                <div class="card-header mt-2">
+                    <h3 class="text-center">Medicine Activity</h3>
+                </div>
+        {!! Form::open(['route' => 'medicine_activity.index', 'method' => 'get']) !!}
+        <div class="row ml-1 mt-2">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label><strong>{{trans('file.Date')}}</strong></label>
+                    <input type="text" class="daterangepicker-field form-control" value="{{$starting_date}} To {{$ending_date}}" required />
+                    <input type="hidden" name="starting_date" value="{{$starting_date}}" />
+                    <input type="hidden" name="ending_date" value="{{$ending_date}}" />
+                </div>
+            </div>
+          
+          
+          
+            <div class="col-md-2 mt-3">
+                <div class="form-group">
+                    <button class="btn btn-primary" id="filter-btn" type="submit">{{trans('file.submit')}}</button>
+                </div>
+            </div>
+        </div>
+        {!! Form::close() !!}
+
+    </div>
+</div>
+
+
+
+
+
+
+
+        <div class="container-fluid">
             <button class="btn btn-info" data-toggle="modal" data-target="#createModal"><i class="dripicons-plus"></i> {{trans('Add Activity')}} </button>&nbsp;
         </div>
         <div class="table-responsive">
@@ -34,11 +69,11 @@
                 </thead>
                 <tbody>
                
-
+{{-- {{dd($lims_brand_all)}} --}}
                 @foreach($lims_brand_all as $key=>$brand)
            
                     <tr data-id="{{$brand->id}}">
-                        <td>{{$key}}</td>
+                        <td></td>
                          <td>{{ $brand->_date }}</td>
                         <td>{{ $brand->name }}</td>
                         <td>{{ $brand->speciality }}</td>
@@ -52,9 +87,9 @@
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
                                 <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
-                                    <li><button type="button" data-id="{{$brand->id}}" class="open-EditbrandDialog btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button></li>
+                                    <li><button type="button" data-id="{{$brand->m_id}}" class="open-EditbrandDialog btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i>  {{trans('file.edit')}}</button></li>
                                     <li class="divider"></li>
-                                    {{ Form::open(['route' => ['medicine_activity.destroy', $brand->id], 'method' => 'DELETE'] ) }}
+                                    {{ Form::open(['route' => ['medicine_activity.destroy', $brand->m_id], 'method' => 'DELETE'] ) }}
                                     <li>
                                         <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure want to delete?')"><i class="dripicons-trash"></i> {{trans('file.delete')}}</button>
                                     </li>
@@ -191,7 +226,16 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-
+        $(".daterangepicker-field").daterangepicker({
+      callback: function(startDate, endDate, period){
+        var starting_date = startDate.format('YYYY-MM-DD');
+        var ending_date = endDate.format('YYYY-MM-DD');
+        var title = starting_date + ' To ' + ending_date;
+        $(this).val(title);
+        $('input[name="starting_date"]').val(starting_date);
+        $('input[name="ending_date"]').val(ending_date);
+      }
+    });
         $( "#select_all" ).on( "change", function() {
             if ($(this).is(':checked')) {
                 $("tbody input[type='checkbox']").prop('checked', true);
@@ -265,20 +309,7 @@
                     "orderable": false,
                     'targets': [0, 3]
                 },
-                {
-                    'render': function(data, type, row, meta){
-                        if(type === 'display'){
-                            data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                        }
-
-                        return data;
-                    },
-                    'checkboxes': {
-                        'selectRow': true,
-                        'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                    },
-                    'targets': [0]
-                }
+             
             ],
             'select': { style: 'multi',  selector: 'td:first-child'},
             'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],

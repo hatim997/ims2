@@ -22,6 +22,7 @@
                     <th>{{trans('file.Account')}} No</th>
                     <th>{{trans('file.name')}}</th>
                     <th>{{trans('file.Initial Balance')}}</th>
+                    <th>Total Balance</th>
                     <th>{{trans('file.Default')}}</th>
                     <th>{{trans('file.Note')}}</th>
                     <th class="not-exported">{{trans('file.action')}}</th>
@@ -38,6 +39,14 @@
                     @else
                         <td>{{number_format(0, $general_setting->decimal, '.', '')}}</td>
                     @endif
+                    @if($account->total_balance)
+                    <td>{{ number_format((float)$account->total_balance, $general_setting->decimal, '.', '')}}</td>
+                @else
+                    <td>{{number_format(0, $general_setting->decimal, '.', '')}}</td>
+                @endif
+
+
+
                     <td>
                         @if($account->is_default)
                         <input type="checkbox" checked class="default" data-id="{{$account->id}}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
@@ -55,6 +64,11 @@
                             <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
                                 <li><button type="button" data-id="{{$account->id}}" data-account_no="{{$account->account_no}}" data-name="{{$account->name}}"  data-initial_balance="{{$account->initial_balance}}" data-note="{{$account->note}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button></li>
                                 <li class="divider"></li>
+                                {{ Form::open(['route' => ['accounts.medicals', $account->id], 'method' => 'post'] ) }}
+                                <li>
+                                    <button type="submit" class="btn btn-link" ><i class="dripicons-align-left"></i> Details Medical </button>
+                                </li>
+                                {{ Form::close() }}
                                 {{ Form::open(['route' => ['accounts.destroy', $account->id], 'method' => 'DELETE'] ) }}
                                 <li>
                                     <button type="submit" class="btn btn-link" onclick="return confirmDelete()"><i class="dripicons-trash"></i> {{trans('file.delete')}}</button>
