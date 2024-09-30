@@ -11,6 +11,7 @@
 @endif
 
 <section>
+    
     <div class="container-fluid">
         <button class="btn btn-info" data-toggle="modal" data-target="#account-modal"><i class="dripicons-plus"></i> {{trans('file.Add Account')}}</button>
     </div>

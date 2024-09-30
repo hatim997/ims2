@@ -156,6 +156,7 @@
             var api = this.api();
             datatable_sum(api, false);
         }
+        
     } );
     function datatable_sum(dt_selector, is_calling_first) {
         if (dt_selector.rows( '.selected' ).any() && is_calling_first) {

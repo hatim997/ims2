@@ -486,6 +486,7 @@
     }
     columns.push({"data": "options"});
     
+    
     @if($lims_pos_setting_data)
         var public_key = <?php echo json_encode($lims_pos_setting_data->stripe_public_key) ?>;
     @endif

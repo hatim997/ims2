@@ -22,6 +22,7 @@ use Auth;
 
 class AccountsController extends Controller
 {
+    
     public function index()
     {
         $role = Role::find(Auth::user()->role_id);

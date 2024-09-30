@@ -174,6 +174,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('role/permission/{id}', 'permission')->name('role.permission');
         Route::post('role/set_permission', 'setPermission')->name('role.setPermission');
     });
+    
 
 
     Route::resource('unit', UnitController::class);

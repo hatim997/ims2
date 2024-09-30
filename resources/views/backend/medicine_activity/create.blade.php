@@ -66,6 +66,7 @@
                     <th>Amount</th>
                     <th class="not-exported">{{trans('file.action')}}</th>
                 </tr>
+                
                 </thead>
                 <tbody>
                

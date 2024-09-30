@@ -39,6 +39,7 @@
                         <td>{{ $brand->name }}</td>
                         <td>{{ $brand->hospital }}</td>
                         <td>{{ $brand->medical }}</td>
+                        
                           <td>{{ $brand->mobile }}</td>
                         <td>{{ $brand->speciality }}</td>
                           <td>{{ $brand->product }}</td>

@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 class MedicineActivity extends Controller
 {
 
+    
 
     public function index(Request $request)
     {
