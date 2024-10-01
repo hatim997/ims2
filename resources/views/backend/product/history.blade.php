@@ -291,7 +291,7 @@
         "columns": [
             {"data": "key"},
             {"data": "date"},
-            {"data": "batch_no"},
+            {"data": "reference_no"},
             {"data": "warehouse"},
             {"data": "supplier"},
             {"data": "qty"},

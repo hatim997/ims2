@@ -63,6 +63,7 @@
                     <th>Speciality</th>
                     <th>Products</th>
                     <th>Activity</th>
+                    <th>Account</th>
                     <th>Amount</th>
                     <th class="not-exported">{{trans('file.action')}}</th>
                 </tr>
@@ -75,11 +76,12 @@
            
                     <tr data-id="{{$brand->id}}">
                         <td></td>
-                         <td>{{ $brand->_date }}</td>
+                         <td>{{ date('j M Y', strtotime($brand->_date));}}</td>
                         <td>{{ $brand->name }}</td>
                         <td>{{ $brand->speciality }}</td>
                         <td>{{ $brand->product }}</td>
                         <td>{{ $brand->activity }}</td>
+                        <td>{{ $brand->account_name }}</td>
                         <td>{{ $brand->amount }}</td>
                         <td>
                             <div class="btn-group">
@@ -189,6 +191,21 @@
                       <div class="form-group">
                         <label>Date *</label>
                         {{Form::date('_date',null,array('required' => 'required', 'class' => 'form-control', 'placeholder' => 'Date'))}}
+                    </div>
+                    <div class="form-group">
+                        <label> Account *</strong> </label>
+                        <div class="input-group">
+                          <select name="account_id" required class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Account...">
+                            @foreach($lims_account as $category)
+                                <option value="{{$category->id}}">{{$category->name}}</option>
+                            @endforeach
+                          </select>
+                      </div>
+                      <span class="validation-msg"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>activity *</label>
+                        {{Form::text('activity',null,array('required' => 'required', 'class' => 'form-control', 'placeholder' => 'activity'))}}
                     </div>
                      <div class="form-group">
                         <label>Amount *</label>
@@ -463,11 +480,11 @@
              function datatable_sum_purchases(dt_selector, is_calling_first) {
         if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
             var rows = dt_selector.rows( '.selected' ).indexes();
-            $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
+            $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
             
         }
         else {
-        $( dt_selector.column( 6 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
+        $( dt_selector.column( 7 ).footer() ).html(dt_selector.cells( rows, 6, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
 
             
         }

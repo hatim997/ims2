@@ -26,8 +26,9 @@ class MedicineActivity extends Controller
         
         $lims_brand_all = Medicine_Activity::where('medicine__activities.is_active', 1)
             ->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')
+            ->join('accounts', 'medicine__activities.account_id', '=', 'accounts.id')
             ->whereBetween('medicine__activities._date', [$starting_date, $ending_date])  // Date range filter
-            ->select('docters.*', 'medicine__activities.id as m_id', 'medicine__activities._date', 'medicine__activities.activity', 'medicine__activities.amount')
+            ->select('docters.*','accounts.name as account_name', 'medicine__activities.id as m_id', 'medicine__activities._date', 'medicine__activities.activity', 'medicine__activities.amount')
             ->get();
           $lims_docter = Docter::where('is_active', 1)->get();
         
@@ -72,6 +73,26 @@ class MedicineActivity extends Controller
         $lims_brand_data->_date = $request->_date;
         $lims_brand_data->is_active = true;
         $lims_brand_data->save();
+
+        $amountString = $request->amount;
+
+// Clean the amount string by removing commas
+$amountStringClean = str_replace(',', '', $amountString);
+
+// Find the account by ID
+$data = Account::findOrFail($request->account_id);
+
+// Convert the cleaned string to a float
+$amount = floatval($amountStringClean);
+
+// Check if the total balance is sufficient
+if ($data->total_balance >= $amount) {
+    // Deduct the amount from the total balance
+    $data->total_balance -= $amount;
+    
+    // Save the updated account
+    $data->save();
+}
 //        $this->cacheForget('brand_list');
         return redirect('medicine_activity');
     }
