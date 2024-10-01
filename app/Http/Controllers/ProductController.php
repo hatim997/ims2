@@ -570,6 +570,7 @@ class ProductController extends Controller
 
         $q = DB::table('sales')
             ->join('product_sales', 'sales.id', '=', 'product_sales.sale_id')
+            ->join('product_batches', 'product_sales.product_batch_id', '=', 'product_batches.id')
             ->where('product_sales.product_id', $product_id)
             ->whereDate('sales.created_at', '>=' ,$request->input('starting_date'))
             ->whereDate('sales.created_at', '<=' ,$request->input('ending_date'));
@@ -590,7 +591,7 @@ class ProductController extends Controller
         $dir = $request->input('order.0.dir');
         $q = $q->join('customers', 'sales.customer_id', '=', 'customers.id')
                 ->join('warehouses', 'sales.warehouse_id', '=', 'warehouses.id')
-                ->select('sales.id', 'sales.reference_no', 'sales.created_at', 'customers.name as customer_name', 'customers.phone_number as customer_number', 'warehouses.name as warehouse_name', 'product_sales.qty', 'product_sales.sale_unit_id', 'product_sales.total')
+                ->select('sales.id', 'product_batches.batch_no', 'sales.created_at', 'customers.name as customer_name', 'customers.phone_number as customer_number', 'warehouses.name as warehouse_name', 'product_sales.qty', 'product_sales.sale_unit_id', 'product_sales.total')
                 ->offset($start)
                 ->limit($limit)
                 ->orderBy($order, $dir);
@@ -603,19 +604,19 @@ class ProductController extends Controller
             $q = $q->whereDate('sales.created_at', '=' , date('Y-m-d', strtotime(str_replace('/', '-', $search))));
             if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
                 $sales =  $q->orwhere([
-                                ['sales.reference_no', 'LIKE', "%{$search}%"],
+                                ['product_batches.batch_no', 'LIKE', "%{$search}%"],
                                 ['sales.user_id', Auth::id()]
                             ])
                             ->get();
                 $totalFiltered = $q->orwhere([
-                                    ['sales.reference_no', 'LIKE', "%{$search}%"],
+                                    ['product_batches.batch_no', 'LIKE', "%{$search}%"],
                                     ['sales.user_id', Auth::id()]
                                 ])
                                 ->count();
             }
             else {
-                $sales =  $q->orwhere('sales.reference_no', 'LIKE', "%{$search}%")->get();
-                $totalFiltered = $q->orwhere('sales.reference_no', 'LIKE', "%{$search}%")->count();
+                $sales =  $q->orwhere('product_batches.batch_no', 'LIKE', "%{$search}%")->get();
+                $totalFiltered = $q->orwhere('product_batches.batch_no', 'LIKE', "%{$search}%")->count();
             }
         }
         $data = array();
@@ -626,7 +627,7 @@ class ProductController extends Controller
                 $nestedData['id'] = $sale->id;
                 $nestedData['key'] = $key;
                 $nestedData['date'] = date(config('date_format'), strtotime($sale->created_at));
-                $nestedData['reference_no'] = $sale->reference_no;
+                $nestedData['reference_no'] = $sale->batch_no;
                 $nestedData['warehouse'] = $sale->warehouse_name;
                 $nestedData['customer'] = $sale->customer_name.' ['.($sale->customer_number).']';
                 $nestedData['qty'] = number_format($sale->qty, config('decimal'));
@@ -685,28 +686,28 @@ class ProductController extends Controller
                 ->limit($limit)
                 ->orderBy($order, $dir);
         if(empty($request->input('search.value'))) {
-            $purchases = $q->select('purchases.id', 'purchases.reference_no', 'purchases.created_at', 'purchases.supplier_id', 'suppliers.name as supplier_name', 'suppliers.phone_number as supplier_number', 'warehouses.name as warehouse_name', 'product_purchases.qty', 'product_purchases.purchase_unit_id', 'product_purchases.total')->get();
+            $purchases = $q->select('purchases.id', 'product_batches.batch_no', 'purchases.created_at', 'purchases.supplier_id', 'suppliers.name as supplier_name', 'suppliers.phone_number as supplier_number', 'warehouses.name as warehouse_name', 'product_purchases.qty', 'product_purchases.purchase_unit_id', 'product_purchases.total')->get();
         }
         else
         {
             $search = $request->input('search.value');
             $q = $q->whereDate('purchases.created_at', '=' , date('Y-m-d', strtotime(str_replace('/', '-', $search))));
             if(Auth::user()->role_id > 2 && config('staff_access') == 'own') {
-                $purchases =  $q->select('purchases.id', 'purchases.reference_no', 'purchases.created_at', 'purchases.supplier_id', 'suppliers.name as supplier_name', 'suppliers.phone_number as supplier_number', 'warehouses.name as warehouse_name', 'product_purchases.qty', 'product_purchases.purchase_unit_id', 'product_purchases.total')
+                $purchases =  $q->select('purchases.id', 'product_batches.batch_no', 'purchases.created_at', 'purchases.supplier_id', 'suppliers.name as supplier_name', 'suppliers.phone_number as supplier_number', 'warehouses.name as warehouse_name', 'product_purchases.qty', 'product_purchases.purchase_unit_id', 'product_purchases.total')
                             ->orwhere([
-                                ['purchases.reference_no', 'LIKE', "%{$search}%"],
+                                ['product_batches.batch_no', 'LIKE', "%{$search}%"],
                                 ['purchases.user_id', Auth::id()]
                             ])->get();
                 $totalFiltered = $q->orwhere([
-                                    ['purchases.reference_no', 'LIKE', "%{$search}%"],
+                                    ['product_batches.batch_no', 'LIKE', "%{$search}%"],
                                     ['purchases.user_id', Auth::id()]
                                 ])->count();
             }
             else {
                 $purchases =  $q->select('purchases.id', 'product_batches.batch_no', 'purchases.created_at', 'purchases.supplier_id', 'suppliers.name as supplier_name', 'suppliers.phone_number as supplier_number', 'warehouses.name as warehouse_name', 'product_purchases.qty', 'product_purchases.purchase_unit_id', 'product_purchases.total')
-                            ->orwhere('purchases.reference_no', 'LIKE', "%{$search}%")
+                            ->orwhere('product_batches.batch_no', 'LIKE', "%{$search}%")
                             ->get();
-                $totalFiltered = $q->orwhere('purchases.reference_no', 'LIKE', "%{$search}%")->count();
+                $totalFiltered = $q->orwhere('product_batches.batch_no', 'LIKE', "%{$search}%")->count();
             }
         }
         $data = array();
@@ -717,8 +718,8 @@ class ProductController extends Controller
                 $nestedData['id'] = $purchase->id;
                 $nestedData['key'] = $key;
                 $nestedData['date'] = date(config('date_format'), strtotime($purchase->created_at));
-                $nestedData['reference_no'] = $purchase->reference_no;
-                $nestedData['warehouse'] = $purchase->batch_no;
+                $nestedData['reference_no'] = $purchase->batch_no;
+                $nestedData['warehouse'] = $purchase->warehouse_name;
                 if($purchase->supplier_id)
                     $nestedData['supplier'] = $purchase->supplier_name.' ['.($purchase->supplier_number).']';
                 else
