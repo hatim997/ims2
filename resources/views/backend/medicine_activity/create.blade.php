@@ -82,7 +82,7 @@
                         <td>{{ $brand->product }}</td>
                         <td>{{ $brand->activity }}</td>
                         <td>{{ $brand->account_name }}</td>
-                        <td>{{ $brand->amount }}</td>
+                        <td>{{ number_format((float) $brand->amount); }}</td>
                         <td>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{trans('file.action')}}
