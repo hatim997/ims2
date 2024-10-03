@@ -109,6 +109,8 @@
     <tr class="table-header" style="background-color: rgb(1, 75, 148); color: white;">
         <td style="border:1px solid #222;padding:1px 3px;width:4%;text-align:center">#</td>
         <td style="border:1px solid #222;padding:1px 3px;width:49%;text-align:center">{{trans('file.Description')}}</td>
+        <td style="border:1px solid #222;padding:1px 3px;width:9%;text-align:center">Batch No</td>
+        <td style="border:1px solid #222;padding:1px 3px;width:9%;text-align:center">Expired Date</td>
         <td style="border:1px solid #222;padding:1px 3px;width:6%;text-align:center">{{trans('file.Qty')}}</td>
         <td style="border:1px solid #222;padding:1px 3px;width:9%;text-align:center">{{trans('file.Unit Price')}}</td>
         <td style="border:1px solid #222;padding:1px 3px;width:7%;text-align:center">{{trans('file.Total')}}</td>
@@ -155,7 +157,8 @@
             @php
             $prod_price=\App\Models\Product::find($product_sale_data->product_id);
             @endphp
-
+ <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->batch_no}}</td>
+ <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->expired_date}}</td>
             <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->qty.' '.$unit_code.' '.$variant_name}}</td>
             <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$prod_price->price }}</td>
             <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->net_unit_price * $product_sale_data->qty }}</td>

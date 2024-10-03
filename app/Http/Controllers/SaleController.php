@@ -2755,7 +2755,9 @@ $lims_sale_data = Compliy::create($newData);
     public function genInvoice($id)
     {
         $lims_sale_data = Sale::find($id);
-        $lims_product_sale_data = Product_Sale::where('sale_id', $id)->get();
+        $lims_product_sale_data = Product_Sale::where('sale_id', $id)
+        ->join('product_batches', 'product_sales.product_batch_id', '=', 'product_batches.id')
+        ->get();
         if(cache()->has('biller_list'))
         {
             $lims_biller_data = cache()->get('biller_list')->find($lims_sale_data->biller_id);
