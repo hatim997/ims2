@@ -278,7 +278,9 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
     });
     Route::resource('biller', BillerController::class);
 
-
+    Route::get('/allocate-payment', function () {
+        return view('backend.purchase.fifo');
+    })->name('allocate.payment.view');
     Route::controller(SaleController::class)->group(function () {
         Route::post('sales/sale-data', 'saleData');
            Route::post('sales/compily-data', 'compilyData');
@@ -299,6 +301,8 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('sales/gen_invoice/{id}', 'genInvoice')->name('sale.invoice');
         Route::post('sales/add_payment', 'addPayment')->name('sale.add-payment');
         Route::get('sales/getpayment/{id}', 'getPayment')->name('sale.get-payment');
+        Route::post('/allocate-payment', 'allocate')->name('allocate.payment');
+     
         Route::post('sales/updatepayment', 'updatePayment')->name('sale.update-payment');
         Route::post('sales/deletepayment', 'deletePayment')->name('sale.delete-payment');
         Route::get('sales/{id}/create', 'createSale')->name('sale.draft');

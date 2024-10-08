@@ -389,8 +389,82 @@ class SaleController extends Controller
         );
         echo json_encode($json_data);
     }
+    function allocatePayment($totalPayment, $transactions) {
+        $allocated = [];
+        
+        foreach ($transactions as $transaction) {
+            // Check if the payment has been fully allocated
+            if ($totalPayment <= 0) {
+                break;
+            }
+            
+            // Amount for the current transaction
+            $transactionAmount = $transaction->grand_total;
+            
+            // Allocate payment
+            if ($totalPayment >= $transactionAmount) {
+                // Fully allocate this transaction
+                $allocated[] = [
+                    'reference_no' => $transaction->reference_no,
+                    'allocated_amount' => $transactionAmount,
+                ];
+                $totalPayment -= $transactionAmount; // Reduce the total payment
+            } else {
+                // Partially allocate payment
+                $allocated[] = [
+                    'reference_no' => $transaction->reference_no,
+                    'allocated_amount' => $totalPayment,
+                ];
+                $totalPayment = 0; // Payment fully allocated
+            }
+        }
+        
+        // Check for remaining payment
+        $remainingPayment = $totalPayment;
+    
+        return [
+            'allocated' => $allocated,
+            'remaining_payment' => $remainingPayment
+        ];
+    }
+
+
+    public function allocate(Request $request) {
+        // Validate the input
+        $request->validate([
+            'payment_amount' => 'required|numeric|min:0',
+        ]);
+    
+        $totalPayment = $request->input('payment_amount'); // Get the payment amount from the form
+        $transactions = Purchase::orderBy('created_at')->get(); // Fetch transactions in FIFO order
+        $allocationResult = allocatePayment($totalPayment, $transactions);
+        
+        // Update paid_amount and payment_status for allocated transactions
+        foreach ($allocationResult['allocated'] as $allocated) {
+            // Find the transaction by reference_no
+           $transaction = Purchase::where('reference_no', $allocated['reference_no'])->first();
+            // dd($transaction);
+
+
+            if ($transaction) {
+                // Update the paid_amount and payment_status
+                $transaction->paid_amount += $allocated['allocated_amount']; // Add to the existing paid_amount
+                // $transaction->payment_status = 2; // Set payment_status to 2
+                $transaction->save(); // Save the transaction
+            }
+        }
+        
+        // If there's any remaining payment, return to the view with a flash message
+    if ($allocationResult['remaining_payment'] > 0) {
+        return redirect()->back()->with('message', 'Payment allocated but ' . $allocationResult['remaining_payment'] . ' remains unallocated.');
+    } else {
+        return redirect()->back()->with('message', 'Payment successfully allocated.');
+    }
+
 
     
+}
+
     
     
     
@@ -1184,8 +1258,8 @@ $lims_sale_data = Compliy::create($newData);
                         $child_data->qty -= $qty[$i] * $qty_list[$key];
                         $child_warehouse_data->qty -= $qty[$i] * $qty_list[$key];
 
-                        $child_data->save();
-                        $child_warehouse_data->save();
+                        //$child_data->save();
+                        //$child_warehouse_data->save();
                     }
                 }
 
@@ -1207,11 +1281,11 @@ $lims_sale_data = Compliy::create($newData);
                             $quantity = $qty[$i] / $lims_sale_unit_data->operation_value;
                         //deduct quantity
                         $lims_product_data->qty = $lims_product_data->qty - $quantity;
-                        $lims_product_data->save();
+                        //$lims_product_data->save();
                         //deduct product variant quantity if exist
                         if($lims_product_data->is_variant) {
                             $lims_product_variant_data->qty -= $quantity;
-                            $lims_product_variant_data->save();
+                           // $lims_product_variant_data->save();
                             $lims_product_warehouse_data = Product_Warehouse::FindProductWithVariant($id, $lims_product_variant_data->variant_id, $data['warehouse_id'])->first();
                         }
                         elseif($product_batch_id[$i]) {
@@ -1222,14 +1296,15 @@ $lims_sale_data = Compliy::create($newData);
                             $lims_product_batch_data = ProductBatch::find($product_batch_id[$i]);
                             //deduct product batch quantity
                             $lims_product_batch_data->qty -= $quantity;
-                            $lims_product_batch_data->save();
+
+                            // $lims_product_batch_data->save();
                         }
                         else {
                             $lims_product_warehouse_data = Product_Warehouse::FindProductWithoutVariant($id, $data['warehouse_id'])->first();
                         }
                         //deduct quantity from warehouse
                         $lims_product_warehouse_data->qty -= $quantity;
-                        $lims_product_warehouse_data->save();
+                        //$lims_product_warehouse_data->save();
                     }
                 }
                 else
@@ -1367,7 +1442,7 @@ $lims_sale_data = Compliy::create($newData);
                 elseif ($paying_method == 'Gift Card') {
                     $lims_gift_card_data = GiftCard::find($data['gift_card_id']);
                     $lims_gift_card_data->expense += $data['paid_amount'];
-                    $lims_gift_card_data->save();
+                    //$lims_gift_card_data->save();
                     PaymentWithGiftCard::create($data);
                 }
                 elseif ($paying_method == 'Cheque') {
@@ -1425,11 +1500,11 @@ $lims_sale_data = Compliy::create($newData);
                 }
                 elseif($paying_method == 'Deposit'){
                     $lims_customer_data->expense += $data['paid_amount'];
-                    $lims_customer_data->save();
+                   // $lims_customer_data->save();
                 }
                 elseif($paying_method == 'Points'){
                     $lims_customer_data->points -= $data['used_points'];
-                    $lims_customer_data->save();
+                    //$lims_customer_data->save();
                 }
             }
         /*}
@@ -1639,7 +1714,7 @@ $lims_sale_data = Compliy::create($newData);
         $lims_product_with_batch_warehouse_data = $query->whereNull('product_warehouse.variant_id')
         ->whereNotNull('product_warehouse.product_batch_id')
         ->select('product_warehouse.*', 'products.is_embeded')
-        ->groupBy('product_warehouse.product_id')
+        // ->groupBy('product_warehouse.product_id')
         ->get();
 
         //now changing back the strict ON
@@ -2001,21 +2076,57 @@ $lims_sale_data = Compliy::create($newData);
 
     public function limsProductSearch(Request $request)
     {
+
+        
         $todayDate = date('Y-m-d');
-        $product_code = explode("(", $request['data']);
-        $product_info = explode("?", $request['data']);
-        $customer_id = $product_info[1];
-        if(strpos($request['data'], '|')) {
-            $product_info = explode("|", $request['data']);
-            $embeded_code = $product_code[0];
-            $product_code[0] = substr($embeded_code, 0, 7);
+        $product_code = explode("(", $request['data']); 
+        $product_batch_no = explode("!", $request['data']);   
+        $product_info = explode("?", $product_batch_no[1]); //    $product_info[0] got product_batch_no
+        $separated_code = $product_info[0];
+        $customer_id = $product_info[1]; 
+        $qty = $product_info[2];
+        if (strpos($request['data'], '|')) {
+            $product_info = explode("|", $request['data']);    
+            $embeded_code = $product_code[0];    
+            $product_code[0] = substr($embeded_code, 0, 7);    
             $qty = substr($embeded_code, 7, 5) / 1000;
-        }
-        else {
-            $product_code[0] = rtrim($product_code[0], " ");
+        } else {    
+            $product_code[0] = rtrim($product_code[0], " ");    
             $qty = $product_info[2];
-        }
-        $product_variant_id = null;
+}
+// Retrieve batch record according to batch number
+$product_batch = DB::table('product_batches')
+                ->where('batch_no', $product_info[0])
+                ->first();
+
+if ($product_batch) {
+    $lims_product_data = Product::where([
+        ['id', $product_batch->product_id],
+        ['is_active', true]
+    ])->first();
+
+    if (!$lims_product_data) {
+        $lims_product_data = Product::join('product_variants', 'products.id', 'product_variants.product_id')
+            ->select('products.*', 'product_variants.id as product_variant_id', 'product_variants.item_code', 'product_variants.additional_price')
+            ->where([
+                ['product_variants.item_code', $product_code[0]],
+                ['products.is_active', true]
+            ])->first();
+        $product_variant_id = $lims_product_data->product_variant_id;
+    }
+
+    // Continue with the rest of your code logic
+    $product[] = $lims_product_data->name;
+    if ($lims_product_data->is_variant) {
+        $product[] = $lims_product_data->item_code;
+        $lims_product_data->price += $lims_product_data->additional_price;
+    } else {
+        $product[] = $lims_product_data->code;
+    }
+
+        // Add batch number and expired date to the product array
+    
+ $product_variant_id = null;
         $all_discount = DB::table('discount_plan_customers')
                         ->join('discount_plans', 'discount_plans.id', '=', 'discount_plan_customers.discount_plan_id')
                         ->join('discount_plan_discounts', 'discount_plans.id', '=', 'discount_plan_discounts.discount_plan_id')
@@ -2027,100 +2138,195 @@ $lims_sale_data = Compliy::create($newData);
                         ])
                         ->select('discounts.*')
                         ->get();
-        $lims_product_data = Product::where([
-            ['code', $product_code[0]],
-            ['is_active', true]
-        ])->first();
-        if(!$lims_product_data) {
-            $lims_product_data = Product::join('product_variants', 'products.id', 'product_variants.product_id')
-                ->select('products.*', 'product_variants.id as product_variant_id', 'product_variants.item_code', 'product_variants.additional_price')
-                ->where([
-                    ['product_variants.item_code', $product_code[0]],
-                    ['products.is_active', true]
-                ])->first();
-            $product_variant_id = $lims_product_data->product_variant_id;
-        }
 
-        $product[] = $lims_product_data->name;
-        if($lims_product_data->is_variant){
-            $product[] = $lims_product_data->item_code;
-            $lims_product_data->price += $lims_product_data->additional_price;
-        }
-        else
-            $product[] = $lims_product_data->code;
 
-        $no_discount = 1;
-        foreach ($all_discount as $key => $discount) {
-            $product_list = explode(",", $discount->product_list);
-            $days = explode(",", $discount->days);
 
-            if( ( $discount->applicable_for == 'All' || in_array($lims_product_data->id, $product_list) ) && ( $todayDate >= $discount->valid_from && $todayDate <= $discount->valid_till && in_array(date('D'), $days) && $qty >= $discount->minimum_qty && $qty <= $discount->maximum_qty ) ) {
-                if($discount->type == 'flat') {
-                    $product[] = $lims_product_data->price - $discount->value;
-                }
-                elseif($discount->type == 'percentage') {
-                    $product[] = $lims_product_data->price - ($lims_product_data->price * ($discount->value/100));
-                }
-                $no_discount = 0;
-                break;
+    $no_discount = 1;
+    foreach ($all_discount as $key => $discount) {
+        $product_list = explode(",", $discount->product_list);
+        $days = explode(",", $discount->days);
+
+        if (($discount->applicable_for == 'All' || in_array($lims_product_data->id, $product_list)) && 
+            ($todayDate >= $discount->valid_from && $todayDate <= $discount->valid_till && 
+            in_array(date('D'), $days) && $qty >= $discount->minimum_qty && $qty <= $discount->maximum_qty)) {
+            if ($discount->type == 'flat') {
+                $product[] = $lims_product_data->price - $discount->value;
+            } elseif ($discount->type == 'percentage') {
+                $product[] = $lims_product_data->price - ($lims_product_data->price * ($discount->value / 100));
             }
-            else {
-                continue;
+            $no_discount = 0;
+            break;
+        } else {
+            continue;
+        }
+    }
+
+    if ($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date && $no_discount) {
+        $product[] = $lims_product_data->promotion_price;
+    } elseif ($no_discount) {
+        $product[] = $lims_product_data->price;
+    }
+
+    if ($lims_product_data->tax_id) {
+        $lims_tax_data = Tax::find($lims_product_data->tax_id);
+        $product[] = $lims_tax_data->rate;
+        $product[] = $lims_tax_data->name;
+    } else {
+        $product[] = 0;
+        $product[] = 'No Tax';
+    }
+
+    $product[] = $lims_product_data->tax_method;
+
+    if ($lims_product_data->type == 'standard') {
+        $units = Unit::where("base_unit", $lims_product_data->unit_id)
+                ->orWhere('id', $lims_product_data->unit_id)
+                ->get();
+        $unit_name = array();
+        $unit_operator = array();
+        $unit_operation_value = array();
+        foreach ($units as $unit) {
+            if ($lims_product_data->sale_unit_id == $unit->id) {
+                array_unshift($unit_name, $unit->unit_name);
+                array_unshift($unit_operator, $unit->operator);
+                array_unshift($unit_operation_value, $unit->operation_value);
+            } else {
+                $unit_name[]  = $unit->unit_name;
+                $unit_operator[] = $unit->operator;
+                $unit_operation_value[] = $unit->operation_value;
             }
         }
+        $product[] = implode(",", $unit_name) . ',';
+        $product[] = implode(",", $unit_operator) . ',';
+        $product[] = implode(",", $unit_operation_value) . ',';
+    } else {
+        $product[] = 'n/a' . ',';
+        $product[] = 'n/a' . ',';
+        $product[] = 'n/a' . ',';
+    }
 
-        if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date && $no_discount) {
-            $product[] = $lims_product_data->promotion_price;
-        }
-        elseif($no_discount)
-            $product[] = $lims_product_data->price;
+    $product[] = $lims_product_data->id;
+    $product[] = $product_variant_id;
+    $product[] = $lims_product_data->promotion;
+    $product[] = $lims_product_data->is_batch;
+    $product[] = $lims_product_data->is_imei;
+    $product[] = $lims_product_data->is_variant;
+    $product[] = $qty;
+    $product[] = $product_batch->batch_no;       // Batch number
+    $product[] = $product_batch->expired_date;  
+    $product[] = $product_batch->id;
+    
+    return ($product);
+} else {
+    // Handle case when the batch number does not exist
+    return "Batch number not found";
+}
+        // $product_variant_id = null;
+        // $all_discount = DB::table('discount_plan_customers')
+        //                 ->join('discount_plans', 'discount_plans.id', '=', 'discount_plan_customers.discount_plan_id')
+        //                 ->join('discount_plan_discounts', 'discount_plans.id', '=', 'discount_plan_discounts.discount_plan_id')
+        //                 ->join('discounts', 'discounts.id', '=', 'discount_plan_discounts.discount_id')
+        //                 ->where([
+        //                     ['discount_plans.is_active', true],
+        //                     ['discounts.is_active', true],
+        //                     ['discount_plan_customers.customer_id', $customer_id]
+        //                 ])
+        //                 ->select('discounts.*')
+        //                 ->get();
+        // $lims_product_data = Product::where([
+        //     ['code', $product_code[0]],
+        //     ['is_active', true]
+        // ])->first();
+        // if(!$lims_product_data) {
+        //     $lims_product_data = Product::join('product_variants', 'products.id', 'product_variants.product_id')
+        //         ->select('products.*', 'product_variants.id as product_variant_id', 'product_variants.item_code', 'product_variants.additional_price')
+        //         ->where([
+        //             ['product_variants.item_code', $product_code[0]],
+        //             ['products.is_active', true]
+        //         ])->first();
+        //     $product_variant_id = $lims_product_data->product_variant_id;
+        // }
 
-        if($lims_product_data->tax_id) {
-            $lims_tax_data = Tax::find($lims_product_data->tax_id);
-            $product[] = $lims_tax_data->rate;
-            $product[] = $lims_tax_data->name;
-        }
-        else{
-            $product[] = 0;
-            $product[] = 'No Tax';
-        }
-        $product[] = $lims_product_data->tax_method;
-        if($lims_product_data->type == 'standard'){
-            $units = Unit::where("base_unit", $lims_product_data->unit_id)
-                    ->orWhere('id', $lims_product_data->unit_id)
-                    ->get();
-            $unit_name = array();
-            $unit_operator = array();
-            $unit_operation_value = array();
-            foreach ($units as $unit) {
-                if($lims_product_data->sale_unit_id == $unit->id) {
-                    array_unshift($unit_name, $unit->unit_name);
-                    array_unshift($unit_operator, $unit->operator);
-                    array_unshift($unit_operation_value, $unit->operation_value);
-                }
-                else {
-                    $unit_name[]  = $unit->unit_name;
-                    $unit_operator[] = $unit->operator;
-                    $unit_operation_value[] = $unit->operation_value;
-                }
-            }
-            $product[] = implode(",",$unit_name) . ',';
-            $product[] = implode(",",$unit_operator) . ',';
-            $product[] = implode(",",$unit_operation_value) . ',';
-        }
-        else{
-            $product[] = 'n/a'. ',';
-            $product[] = 'n/a'. ',';
-            $product[] = 'n/a'. ',';
-        }
-        $product[] = $lims_product_data->id;
-        $product[] = $product_variant_id;
-        $product[] = $lims_product_data->promotion;
-        $product[] = $lims_product_data->is_batch;
-        $product[] = $lims_product_data->is_imei;
-        $product[] = $lims_product_data->is_variant;
-        $product[] = $qty;
-        return $product;
+        // $product[] = $lims_product_data->name;
+        // if($lims_product_data->is_variant){
+        //     $product[] = $lims_product_data->item_code;
+        //     $lims_product_data->price += $lims_product_data->additional_price;
+        // }
+        // else
+        //     $product[] = $lims_product_data->code;
+
+        // $no_discount = 1;
+        // foreach ($all_discount as $key => $discount) {
+        //     $product_list = explode(",", $discount->product_list);
+        //     $days = explode(",", $discount->days);
+
+        //     if( ( $discount->applicable_for == 'All' || in_array($lims_product_data->id, $product_list) ) && ( $todayDate >= $discount->valid_from && $todayDate <= $discount->valid_till && in_array(date('D'), $days) && $qty >= $discount->minimum_qty && $qty <= $discount->maximum_qty ) ) {
+        //         if($discount->type == 'flat') {
+        //             $product[] = $lims_product_data->price - $discount->value;
+        //         }
+        //         elseif($discount->type == 'percentage') {
+        //             $product[] = $lims_product_data->price - ($lims_product_data->price * ($discount->value/100));
+        //         }
+        //         $no_discount = 0;
+        //         break;
+        //     }
+        //     else {
+        //         continue;
+        //     }
+        // }
+
+        // if($lims_product_data->promotion && $todayDate <= $lims_product_data->last_date && $no_discount) {
+        //     $product[] = $lims_product_data->promotion_price;
+        // }
+        // elseif($no_discount)
+        //     $product[] = $lims_product_data->price;
+
+        // if($lims_product_data->tax_id) {
+        //     $lims_tax_data = Tax::find($lims_product_data->tax_id);
+        //     $product[] = $lims_tax_data->rate;
+        //     $product[] = $lims_tax_data->name;
+        // }
+        // else{
+        //     $product[] = 0;
+        //     $product[] = 'No Tax';
+        // }
+        // $product[] = $lims_product_data->tax_method;
+        // if($lims_product_data->type == 'standard'){
+        //     $units = Unit::where("base_unit", $lims_product_data->unit_id)
+        //             ->orWhere('id', $lims_product_data->unit_id)
+        //             ->get();
+        //     $unit_name = array();
+        //     $unit_operator = array();
+        //     $unit_operation_value = array();
+        //     foreach ($units as $unit) {
+        //         if($lims_product_data->sale_unit_id == $unit->id) {
+        //             array_unshift($unit_name, $unit->unit_name);
+        //             array_unshift($unit_operator, $unit->operator);
+        //             array_unshift($unit_operation_value, $unit->operation_value);
+        //         }
+        //         else {
+        //             $unit_name[]  = $unit->unit_name;
+        //             $unit_operator[] = $unit->operator;
+        //             $unit_operation_value[] = $unit->operation_value;
+        //         }
+        //     }
+        //     $product[] = implode(",",$unit_name) . ',';
+        //     $product[] = implode(",",$unit_operator) . ',';
+        //     $product[] = implode(",",$unit_operation_value) . ',';
+        // }
+        // else{
+        //     $product[] = 'n/a'. ',';
+        //     $product[] = 'n/a'. ',';
+        //     $product[] = 'n/a'. ',';
+        // }
+        // $product[] = $lims_product_data->id;
+        // $product[] = $product_variant_id;
+        // $product[] = $lims_product_data->promotion;
+        // $product[] = $lims_product_data->is_batch;
+        // $product[] = $lims_product_data->is_imei;
+        // $product[] = $lims_product_data->is_variant;
+        // $product[] = $qty;
+        // return $product;
 
     }
 

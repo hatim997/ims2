@@ -1303,6 +1303,8 @@ class ProductController extends Controller
 
     public function limsProductSearch(Request $request)
     {
+
+       
         $product_code = explode("(", $request['data']);
         $product_code[0] = rtrim($product_code[0], " ");
         $lims_product_data = Product::where([

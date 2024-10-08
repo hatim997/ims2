@@ -65,7 +65,9 @@
         </div>
         @if(in_array("purchases-add", $all_permission))
             <a href="{{route('purchases.create')}}" class="btn btn-info"><i class="dripicons-plus"></i> {{trans('file.Add Purchase')}}</a>&nbsp;
-            <a href="{{url('purchases/purchase_by_csv')}}" class="btn btn-primary"><i class="dripicons-copy"></i> {{trans('file.Import Purchase')}}</a>
+            <a href="{{url('purchases/purchase_by_csv')}}" class="btn btn-primary"><i class="dripicons-copy"></i> {{trans('file.Import Purchase')}}</a>&nbsp;
+            <a href="{{url('allocate-payment')}}" class="btn btn-warning"><i class="dripicons-copy"></i> Payment [FIFO]</a>
+
         @endif
     </div>
     <div class="table-responsive">
