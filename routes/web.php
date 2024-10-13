@@ -243,21 +243,15 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('tax/lims_tax_search', 'limsTaxSearch')->name('tax.search');
     });
     Route::resource('tax', TaxController::class);
-
-
     Route::controller(CustomerGroupController::class)->group(function () {
         Route::post('importcustomer_group', 'importCustomerGroup')->name('customer_group.import');
         Route::post('customer_group/deletebyselection', 'deleteBySelection');
         Route::get('customer_group/lims_customer_group_search', 'limsCustomerGroupSearch')->name('customer_group.search');
     });
     Route::resource('customer_group', CustomerGroupController::class);
-
-
     Route::resource('discount-plans', DiscountPlanController::class);
     Route::resource('discounts', DiscountController::class);
     Route::get('discounts/product-search/{code}', [DiscountController::class, 'productSearch']);
-
-
     Route::controller(CustomerController::class)->group(function () {
         Route::post('importcustomer', 'importCustomer')->name('customer.import');
         Route::get('customer/getDeposit/{id}', 'getDeposit');
@@ -269,15 +263,12 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::post('customers/clear-due', 'clearDue')->name('customer.clearDue');
     });
     Route::resource('customer', CustomerController::class);
-
-
     Route::controller(BillerController::class)->group(function () {
         Route::post('importbiller', 'importBiller')->name('biller.import');
         Route::post('biller/deletebyselection', 'deleteBySelection');
         Route::get('biller/lims_biller_search', 'limsBillerSearch')->name('biller.search');
     });
     Route::resource('biller', BillerController::class);
-
     Route::get('/allocate-payment', function () {
         return view('backend.purchase.fifo');
     })->name('allocate.payment.view');

@@ -2963,6 +2963,7 @@ if ($product_batch) {
         $lims_sale_data = Sale::find($id);
         $lims_product_sale_data = Product_Sale::where('sale_id', $id)
         ->join('product_batches', 'product_sales.product_batch_id', '=', 'product_batches.id')
+        ->select('product_batches.qty as btch_qty ','product_sales.*' ,'product_batches.batch_no','product_batches.expired_date')
         ->get();
         if(cache()->has('biller_list'))
         {
