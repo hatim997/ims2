@@ -1042,7 +1042,7 @@
             htmltext += '<br><strong>{{trans("file.Exchange Rate")}}: </strong>N/A<br>';
         if(sale[30])
             htmltext += '<strong>{{trans("file.Attach Document")}}: </strong><a href="documents/sale/'+sale[30]+'">Download</a><br>';
-        htmltext += '<br><div class="row"><div class="col-md-6"><strong>{{trans("file.From")}}:</strong><br>'+sale[3]+'<br>'+sale[4]+'<br>'+sale[5]+'<br>'+sale[6]+'<br>'+sale[7]+'<br>'+sale[8]+'</div><div class="col-md-6"><div class="float-right"><strong>{{trans("file.To")}}:</strong><br>'+sale[9]+'<br>'+sale[10]+'<br>'+sale[11]+'<br>'+sale[12]+'</div></div></div>';
+        htmltext += '<br><div class="row"><div class="col-md-6"><strong>{{trans("file.From")}}:</strong><br>'+sale[3]+'<br></div><div class="col-md-6"><div class="float-right"><strong>{{trans("file.To")}}:</strong><br>'+sale[9]+'<br>'+sale[10]+'<br>'+sale[11]+'<br>'+sale[12]+'</div></div></div>';
         $.get('sales/product_sale/' + sale[13], function(data){
             $(".product-sale-list tbody").remove();
             var name_code = data[0];
