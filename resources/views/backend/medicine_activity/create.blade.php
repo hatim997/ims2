@@ -325,8 +325,7 @@
             },
             'columnDefs': [
                 {
-                    "orderable": false,
-                    'targets': [0, 3]
+                    type: 'date', targets: 1
                 },
              
             ],

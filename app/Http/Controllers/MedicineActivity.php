@@ -31,7 +31,7 @@ class MedicineActivity extends Controller
             ->select('docters.*','accounts.name as account_name', 'medicine__activities.id as m_id', 'medicine__activities._date', 'medicine__activities.activity', 'medicine__activities.amount')
             ->get();
           $lims_docter = Docter::where('is_active', 1)->get();
-        
+
             $lims_account = Account::where('is_active', 1)->get();
         return view('backend.medicine_activity.create', compact('lims_brand_all','lims_docter','lims_account','starting_date', 'ending_date'));
     }
