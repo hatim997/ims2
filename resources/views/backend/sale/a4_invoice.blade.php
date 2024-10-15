@@ -158,7 +158,7 @@
             $prod_price=\App\Models\Product::find($product_sale_data->product_id);
             @endphp
  <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->batch_no}}</td>
- <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->expired_date}}</td>
+ <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{ \Carbon\Carbon::parse($product_sale_data->expired_date)->format('m/Y') }}</td>
             <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->qty}}</td>
             <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$prod_price->price }}</td>
             <td style="border:1px solid #222;padding:1px 3px;text-align:center">{{$product_sale_data->net_unit_price * $product_sale_data->qty }}</td>
