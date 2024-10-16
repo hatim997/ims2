@@ -269,9 +269,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('biller/lims_biller_search', 'limsBillerSearch')->name('biller.search');
     });
     Route::resource('biller', BillerController::class);
-    Route::get('/allocate-payment', function () {
-        return view('backend.purchase.fifo');
-    })->name('allocate.payment.view');
+
     Route::controller(SaleController::class)->group(function () {
         Route::post('sales/sale-data', 'saleData');
            Route::post('sales/compily-data', 'compilyData');
@@ -292,6 +290,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('sales/gen_invoice/{id}', 'genInvoice')->name('sale.invoice');
         Route::post('sales/add_payment', 'addPayment')->name('sale.add-payment');
         Route::get('sales/getpayment/{id}', 'getPayment')->name('sale.get-payment');
+        Route::get('/allocate-payment', 'getAllocates')->name('allocate.payment.view');
         Route::post('/allocate-payment', 'allocate')->name('allocate.payment');
      
         Route::post('sales/updatepayment', 'updatePayment')->name('sale.update-payment');
@@ -548,7 +547,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
     Route::controller(AccountsController::class)->group(function () {
         Route::get('make-default/{id}', 'makeDefault');
         Route::get('balancesheet', 'balanceSheet')->name('accounts.balancesheet');
-        Route::post('account-medical/{id}', 'medical')->name('accounts.medicals');
+        Route::get('account-medical/{id}', 'medical')->name('accounts.medicals');
         Route::post('account-statement', 'accountStatement')->name('accounts.statement');
     });
     Route::resource('accounts', AccountsController::class);

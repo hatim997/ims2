@@ -21,6 +21,7 @@ use App\Models\Product_Sale;
 use App\Models\Product_Warehouse;
 use App\Models\Payment;
 use App\Models\Account;
+use App\Models\Allocate;
 use App\Models\Coupon;
 use App\Models\GiftCard;
 use App\Models\PaymentWithCheque;
@@ -427,30 +428,60 @@ class SaleController extends Controller
             'remaining_payment' => $remainingPayment
         ];
     }
+    public function getAllocates() {
+
+        $lims_account = Account::where('is_active', 1)->get();
+
+    return view('backend.purchase.fifo',compact('lims_account'));
 
 
+
+    }
     public function allocate(Request $request) {
         // Validate the input
         $request->validate([
             'payment_amount' => 'required|numeric|min:0',
         ]);
     
-        $totalPayment = $request->input('payment_amount'); // Get the payment amount from the form
+        $totalPayment = $request->input('payment_amount');
+    
+        // Get the payment amount from the form
         $transactions = Purchase::orderBy('created_at')->get(); // Fetch transactions in FIFO order
         $allocationResult = allocatePayment($totalPayment, $transactions);
         
+       
         // Update paid_amount and payment_status for allocated transactions
         foreach ($allocationResult['allocated'] as $allocated) {
-            // Find the transaction by reference_no
-           $transaction = Purchase::where('reference_no', $allocated['reference_no'])->first();
-            // dd($transaction);
-
-
+            $transaction = Purchase::where('reference_no', $allocated['reference_no'])->first();
+          
             if ($transaction) {
-                // Update the paid_amount and payment_status
-                $transaction->paid_amount += $allocated['allocated_amount']; // Add to the existing paid_amount
-                // $transaction->payment_status = 2; // Set payment_status to 2
-                $transaction->save(); // Save the transaction
+                // Update the transaction
+                $transaction->paid_amount += $allocated['allocated_amount'];
+                if ($transaction->paid_amount == $transaction->grand_total) {
+                    $transaction->payment_status = 2; // Mark the payment as done
+                }
+                $transaction->save();
+                $filePath = null; // Default value if no file is uploaded
+
+                if ($request->hasFile('file')) {
+                    $filePath = $request->file('file')->store('uploads'); // Store the file if it exists
+                }
+                // Store in allocate table
+                Allocate::create([
+                    'type' => $request->input('type'),  
+                    'purches_id' => $transaction->id,  // Store Purchase ID
+                    'account_id' => $request->input('account_id'),  // From form
+                    'amont' => $allocated['allocated_amount'],
+                    'comment' => $request->input('comment'),
+                    'file' => $filePath,  // Store uploaded file if needed
+                ]);
+
+                $account = Account::find($request->input('account_id')); // Get the account
+                if ($account) {
+                    $account->total_balance -= $allocated['allocated_amount'];
+                    $account->save(); // Save the updated balance
+                }
+
             }
         }
         

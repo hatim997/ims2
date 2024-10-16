@@ -19,22 +19,22 @@
             <thead>
                 <tr>
                     <th class="not-exported"></th>
-                    <th>Name</th>                   
-                    <th>Products</th>
-                    <th>Activity</th>
+                    <th>Name</th>      
+                    {{-- <th>Activity</th> --}}
                     <th>{{trans('file.Credit')}}</th>
                     <th>{{trans('file.Debit')}}</th>                   
                 </tr>
             </thead>
             <tbody>
-                @foreach($lims_account_all as $key=>$account)
+                {{-- {{dd($lims_account_all)}} --}}
+                @foreach($lims_account_all as $account)
                 <tr>
                     <td></td>
-                    <td>{{ $account->name }}</td>
-                    <td>{{ $account->product }}</td>
-                    <td>{{ $account->activity }}</td>
+                    <td>{{ $account->ID }}</td>
+                    {{-- <td>{{ $account->AccountID }}</td> --}}
+                    {{-- <td>{{ $account->activity }}</td> --}}
                     <td></td>
-                    <td>{{ $account->amount }}</td>
+                    <td>{{ $account->Ammount  }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -43,8 +43,7 @@
                 <th>{{trans('file.Total')}}</th>
                 <th></th>
                 <th></th>
-                <th></th>    
-                <th></th>             
+            
             </tfoot>
         </table>
     </div>
@@ -82,7 +81,7 @@
         'columnDefs': [
             {
                 "orderable": false,
-                'targets': [0, 5]
+                'targets': [0, 3]
             },
        
         ],
@@ -161,10 +160,10 @@
     function datatable_sum(dt_selector, is_calling_first) {
         if (dt_selector.rows( '.selected' ).any() && is_calling_first) {
             var rows = dt_selector.rows( '.selected' ).indexes();
-            $( dt_selector.column( 4).footer() ).html(dt_selector.cells( rows, 4, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
+            $( dt_selector.column( 3).footer() ).html(dt_selector.cells( rows, 3, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
         }
         else {
-            $( dt_selector.column( 5).footer() ).html(dt_selector.cells( rows, 5, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
+            $( dt_selector.column( 3).footer() ).html(dt_selector.cells( rows, 3, { page: 'current' } ).data().sum().toFixed({{$general_setting->decimal}}));
         }
     }
 

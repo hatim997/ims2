@@ -1,5 +1,4 @@
 <?php
-
 if (!function_exists('allocatePayment')) {
     function allocatePayment($totalPayment, $transactions)
     {

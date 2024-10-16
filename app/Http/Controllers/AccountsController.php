@@ -13,6 +13,7 @@ use App\Models\Payroll;
 use App\Models\Medicine_Activity;
 use App\Models\Docter;
 use App\Models\MoneyTransfer;
+use App\Models\Allocate;
 use DB;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -21,9 +22,7 @@ use Auth;
 
 
 class AccountsController extends Controller
-{
-    
-    public function index()
+{    public function index()
     {
         $role = Role::find(Auth::user()->role_id);
         if($role->hasPermissionTo('account-index')){
@@ -38,9 +37,51 @@ class AccountsController extends Controller
     {
         $role = Role::find(Auth::user()->role_id);
         if($role->hasPermissionTo('account-index')){
-            $lims_account_all = Medicine_Activity::where('account_id', $id)
-            ->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')->get();
-          // dd( $lims_account_all );
+        //     $lims_account_all = Medicine_Activity::where('account_id', $id)
+        //     ->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')->get();
+        //   // dd( $lims_account_all );
+    // Fetching data from Medicine_Activity
+$medicineActivities = Medicine_Activity::where('account_id', $id)
+->join('docters', 'medicine__activities.doc_id', '=', 'docters.id')
+->select(
+    'medicine__activities.activity as ID',
+    'medicine__activities.account_id as AccountID',
+    'medicine__activities.amount as Ammount',
+    DB::raw("'MedicalActivity' AS ActivityType"),
+    'medicine__activities.created_at'
+);
+
+// Fetching data from Allocate with a join on purchases
+$allocateActivities = Allocate::where('account_id', $id)
+->join('purchases', 'allocates.purches_id', '=', 'purchases.id')
+->select(
+    'purchases.reference_no as ID',
+    'allocates.account_id as AccountID',
+    'allocates.amont as Ammount', // Ensure this is correct
+    DB::raw("'PurchaseActivity' AS ActivityType"),
+    'allocates.created_at'
+);
+
+// Combine both queries using union
+$lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('created_at')->get();
+
+    
+
+
+
+
+
+
+
+    
+    // // Merging the two collections (medicineActivities and allocateActivities)
+    // $allActivities = $medicineActivities->merge($allocateActivities);
+    
+    // Sort the merged collection by date (in case the dates vary between collections)
+    // $lims_account_all = $allActivities->sortBy('created_at');
+
+//  dd( $combinedActivities);
+
             return view('backend.account.medicalacc', compact('lims_account_all'));
         }
         else
