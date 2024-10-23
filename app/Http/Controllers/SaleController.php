@@ -11,6 +11,7 @@ use App\Models\Biller;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\Tax;
 use App\Models\Sale;
@@ -431,8 +432,9 @@ class SaleController extends Controller
     public function getAllocates() {
 
         $lims_account = Account::where('is_active', 1)->get();
+        $lims_Supplier = Supplier::where('is_active', 1)->get();
 
-    return view('backend.purchase.fifo',compact('lims_account'));
+    return view('backend.purchase.fifo',compact('lims_account','lims_Supplier'));
 
 
 
@@ -446,8 +448,12 @@ class SaleController extends Controller
         $totalPayment = $request->input('payment_amount');
     
         // Get the payment amount from the form
-        $transactions = Purchase::orderBy('created_at')->get(); // Fetch transactions in FIFO order
-        $allocationResult = allocatePayment($totalPayment, $transactions);
+        $transactions = Purchase::where('supplier_id', $request->input('suppli_id'))
+    ->orderBy('created_at')
+    ->get(); // Fetch transactions in FIFO order
+      
+    
+    $allocationResult = allocatePayment($totalPayment, $transactions);
         
        
         // Update paid_amount and payment_status for allocated transactions

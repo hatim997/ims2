@@ -36,7 +36,7 @@
                                  <input type="text" name="type" id="payment_amount"  class="form-control" required />
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mt-3">
+                                    <div class="col-md-4 mt-3">
                                     <div class="form-group">
                                         <label>From Account *</strong> </label>
                                         <div class="input-group">
@@ -49,6 +49,21 @@
                                       <span class="validation-msg"></span>
                                     </div>  
                                    </div>
+                                   <div class="col-md-4 mt-3">
+                                    <div class="form-group">
+                                        <label>From Supplier *</strong> </label>
+                                        <div class="input-group">
+                                          <select name="suppli_id" required class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Account...">
+                                            @foreach($lims_Supplier as $category)
+                                                <option value="{{$category->id}}">{{$category->name}}</option>
+                                            @endforeach
+                                          </select>
+                                      </div>
+                                      <span class="validation-msg"></span>
+                                    </div>  
+                                   </div>
+
+
                                    <div class="col-md-6 mt-3">
                                     <label for="payment_amount"> Message:</label>
                                     <div class="search-box input-group">                                           
