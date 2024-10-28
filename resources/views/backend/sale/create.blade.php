@@ -828,6 +828,7 @@
                 product_batch_id = data[9];
                 expired_date = data[10];
                 is_embeded = data[11];
+                console.log(data,"datsd");
                 $.each(product_code, function (index) {
                     if (is_embeded[index])
                         lims_product_array.push(product_code[index] + ' (' + product_name[index] + ')|' + is_embeded[index]);
@@ -996,7 +997,7 @@
 
 
 
-                    
+
                 }
             });
         });
@@ -1195,7 +1196,7 @@
             var row_product_code = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(2)').text();
             pos = product_code.indexOf(row_product_code);
             console.log( sale_qty);
-
+            console.log( pos);
             console.log( product_qty[pos],pos);
             if (without_stock == 'no') {
                 if (product_type[pos] == 'standard') {
