@@ -2668,6 +2668,7 @@ function checkQuantity(sale_qty, flag) {
     pos = product_code.indexOf(row_product_code);
     $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('.in-stock').text(product_qty[pos]);
     if(without_stock == 'no') {
+      
       if(product_type[pos] == 'standard') {
           var operator = unit_operator[rowindex].split(',');
           var operation_value = unit_operation_value[rowindex].split(',');

@@ -993,6 +993,10 @@
                     code = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('.product-code').val();
                     pos = product_code.indexOf(code);
                     product_qty[pos] = data['qty'];
+
+
+
+                    
                 }
             });
         });
@@ -1178,7 +1182,7 @@
                     success: function (data) {
                       
                         pos = product_code.indexOf($('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ') .product-code').val());
-                         product_pricee[rowindex] = parseFloat(data[0] * currency['exchange_rate']) + parseFloat(data[0] * currency['exchange_rate'] * customer_group_rate);
+                         product_price[rowindex] = parseFloat(data[0] * currency['exchange_rate']) + parseFloat(data[0] * currency['exchange_rate'] * customer_group_rate);
                     }
                 });
             }
@@ -1187,8 +1191,12 @@
         }
 
         function checkQuantity(sale_qty, flag) {
+
             var row_product_code = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(2)').text();
             pos = product_code.indexOf(row_product_code);
+            console.log( sale_qty);
+
+            console.log( product_qty[pos],pos);
             if (without_stock == 'no') {
                 if (product_type[pos] == 'standard') {
                     var operator = unit_operator[rowindex].split(',');
