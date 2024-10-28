@@ -1251,7 +1251,7 @@ class ProductController extends Controller
         foreach ($lims_product_warehouse_data as $key => $product_warehouse_data) {
             $lims_warehouse_data = Warehouse::find($product_warehouse_data->warehouse_id);
             if($product_warehouse_data->product_batch_id) {
-                $product_batch_data = ProductBatch::select('batch_no', 'expired_date')->find($product_warehouse_data->product_batch_id);
+                $product_batch_data = ProductBatch::select('batch_no', 'expired_date','qty')->find($product_warehouse_data->product_batch_id);
                 $batch_no = $product_batch_data->batch_no;
                 $expiredDate = date(config('date_format'), strtotime($product_batch_data->expired_date));
             }
@@ -1262,7 +1262,7 @@ class ProductController extends Controller
             $warehouse[] = $lims_warehouse_data->name;
             $batch[] = $batch_no;
             $expired_date[] = $expiredDate;
-            $qty[] = $product_warehouse_data->qty;
+            $qty[] = $product_batch_data->qty;
             if($product_warehouse_data->imei_number)
                 $imei_number[] = $product_warehouse_data->imei_number;
             else
