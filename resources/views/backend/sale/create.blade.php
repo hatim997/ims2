@@ -1193,10 +1193,12 @@
 
         function checkQuantity(sale_qty, flag) {
 
-            var row_product_code = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(2)').text();
-            pos = product_code.indexOf(row_product_code);
-            console.log( sale_qty);
-            console.log( pos);
+            var row_product_code = $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(4) input').val();
+            pos = batch_no.indexOf(row_product_code);
+            console.log( row_product_code,"raw");
+            console.log( product_code,"code");
+            console.log( sale_qty,"sal couhnt");
+            console.log( pos,"pos");
             console.log( product_qty[pos],pos);
             if (without_stock == 'no') {
                 if (product_type[pos] == 'standard') {

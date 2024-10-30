@@ -1789,25 +1789,25 @@ $lims_sale_data = Compliy::create($newData);
         $expired_date = [];
         $is_embeded = [];
         //product without variant
-        foreach ($lims_product_warehouse_data as $product_warehouse)
-        {
-            $product_qty[] = $product_warehouse->qty;
-            $product_price[] = $product_warehouse->price;
-            $lims_product_data = Product::find($product_warehouse->product_id);
-            $product_code[] =  $lims_product_data->code;
-            $product_name[] = htmlspecialchars($lims_product_data->name);
-            $product_type[] = $lims_product_data->type;
-            $product_id[] = $lims_product_data->id;
-            $product_list[] = $lims_product_data->product_list;
-            $qty_list[] = $lims_product_data->qty_list;
-            $batch_no[] = null;
-            $product_batch_id[] = null;
-            $expired_date[] = null;
-            if($product_warehouse->is_embeded)
-                $is_embeded[] = $product_warehouse->is_embeded;
-            else
-                $is_embeded[] = 0;
-        }
+        // foreach ($lims_product_warehouse_data as $product_warehouse)
+        // {
+        //     $product_qty[] = $product_warehouse->qty;
+        //     $product_price[] = $product_warehouse->price;
+        //     $lims_product_data = Product::find($product_warehouse->product_id);
+        //     $product_code[] =  $lims_product_data->code;
+        //     $product_name[] = htmlspecialchars($lims_product_data->name);
+        //     $product_type[] = $lims_product_data->type;
+        //     $product_id[] = $lims_product_data->id;
+        //     $product_list[] = $lims_product_data->product_list;
+        //     $qty_list[] = $lims_product_data->qty_list;
+        //     $batch_no[] = null;
+        //     $product_batch_id[] = null;
+        //     $expired_date[] = null;
+        //     if($product_warehouse->is_embeded)
+        //         $is_embeded[] = $product_warehouse->is_embeded;
+        //     else
+        //         $is_embeded[] = 0;
+        // }
         //product with batches
         foreach ($lims_product_with_batch_warehouse_data as $product_warehouse)
         {
@@ -1830,43 +1830,43 @@ $lims_sale_data = Compliy::create($newData);
                 $is_embeded[] = 0;
         }
         //product with variant
-        foreach ($lims_product_with_variant_warehouse_data as $product_warehouse)
-        {
-            $product_qty[] = $product_warehouse->qty;
-            $lims_product_data = Product::find($product_warehouse->product_id);
-            $lims_product_variant_data = ProductVariant::select('item_code')->FindExactProduct($product_warehouse->product_id, $product_warehouse->variant_id)->first();
-            if($lims_product_variant_data) {
-                $product_code[] =  $lims_product_variant_data->item_code;
-                $product_name[] = htmlspecialchars($lims_product_data->name);
-                $product_type[] = $lims_product_data->type;
-                $product_id[] = $lims_product_data->id;
-                $product_list[] = $lims_product_data->product_list;
-                $qty_list[] = $lims_product_data->qty_list;
-                $batch_no[] = null;
-                $product_batch_id[] = null;
-                $expired_date[] = null;
-                if($product_warehouse->is_embeded)
-                    $is_embeded[] = $product_warehouse->is_embeded;
-                else
-                    $is_embeded[] = 0;
-            }
-        }
+        // foreach ($lims_product_with_variant_warehouse_data as $product_warehouse)
+        // {
+        //     $product_qty[] = $product_warehouse->qty;
+        //     $lims_product_data = Product::find($product_warehouse->product_id);
+        //     $lims_product_variant_data = ProductVariant::select('item_code')->FindExactProduct($product_warehouse->product_id, $product_warehouse->variant_id)->first();
+        //     if($lims_product_variant_data) {
+        //         $product_code[] =  $lims_product_variant_data->item_code;
+        //         $product_name[] = htmlspecialchars($lims_product_data->name);
+        //         $product_type[] = $lims_product_data->type;
+        //         $product_id[] = $lims_product_data->id;
+        //         $product_list[] = $lims_product_data->product_list;
+        //         $qty_list[] = $lims_product_data->qty_list;
+        //         $batch_no[] = null;
+        //         $product_batch_id[] = null;
+        //         $expired_date[] = null;
+        //         if($product_warehouse->is_embeded)
+        //             $is_embeded[] = $product_warehouse->is_embeded;
+        //         else
+        //             $is_embeded[] = 0;
+        //     }
+        // }
         //retrieve product with type of digital, combo and service
         $lims_product_data = Product::whereNotIn('type', ['standard'])->where('is_active', true)->get();
-        foreach ($lims_product_data as $product)
-        {
-            $product_qty[] = $product->qty;
-            $product_code[] =  $product->code;
-            $product_name[] = $product->name;
-            $product_type[] = $product->type;
-            $product_id[] = $product->id;
-            $product_list[] = $product->product_list;
-            $qty_list[] = $product->qty_list;
-            $batch_no[] = null;
-            $product_batch_id[] = null;
-            $expired_date[] = null;
-            $is_embeded[] = 0;
-        }
+        // foreach ($lims_product_data as $product)
+        // {
+        //     $product_qty[] = $product->qty;
+        //     $product_code[] =  $product->code;
+        //     $product_name[] = $product->name;
+        //     $product_type[] = $product->type;
+        //     $product_id[] = $product->id;
+        //     $product_list[] = $product->product_list;
+        //     $qty_list[] = $product->qty_list;
+        //     $batch_no[] = null;
+        //     $product_batch_id[] = null;
+        //     $expired_date[] = null;
+        //     $is_embeded[] = 0;
+        // }
         $product_data = [$product_code, $product_name, $product_qty, $product_type, $product_id, $product_list, $qty_list, $product_price, $batch_no, $product_batch_id, $expired_date, $is_embeded];
         return $product_data;
     }
