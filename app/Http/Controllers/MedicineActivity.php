@@ -113,8 +113,17 @@ if ($data->total_balance >= $amount) {
     public function destroy($id)
     {
         $lims_brand_data = Medicine_Activity::findOrFail($id);
-        $lims_brand_data->is_active = false;
-        $lims_brand_data->save();
+        $data = Account::findOrFail($lims_brand_data->account_id);
+        if ($data->total_balance >= 0) {
+            // If total_balance is positive, subtract the amount
+            $data->total_balance -= abs($lims_brand_data->amount);
+        } else {
+            // If total_balance is negative, add the amount (which effectively reduces the negative balance)
+            $data->total_balance += abs($lims_brand_data->amount);
+        }
+        $data->save();
+        $lims_brand_data->delete(); // Delete the Medicine_Activity record
+
 //        $this->cacheForget('brand_list');
         return redirect('medicine_activity')->with('not_permitted', 'Activity deleted successfully!');
     }

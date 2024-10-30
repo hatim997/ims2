@@ -1240,7 +1240,7 @@ $lims_sale_data = Compliy::create($newData);
             $mail_data['shipping_cost'] = $lims_sale_data->shipping_cost;
             $mail_data['grand_total'] = $lims_sale_data->grand_total;
             $mail_data['paid_amount'] = $lims_sale_data->paid_amount;
-
+// dd(  $data     );
             $product_id = $data['product_id'];
             $product_batch_id = $data['product_batch_id'];
             $imei_number = $data['imei_number'];
@@ -1295,8 +1295,8 @@ $lims_sale_data = Compliy::create($newData);
                         $child_data->qty -= $qty[$i] * $qty_list[$key];
                         $child_warehouse_data->qty -= $qty[$i] * $qty_list[$key];
 
-                        //$child_data->save();
-                        //$child_warehouse_data->save();
+                        $child_data->save();
+                        $child_warehouse_data->save();
                     }
                 }
 
@@ -1318,11 +1318,11 @@ $lims_sale_data = Compliy::create($newData);
                             $quantity = $qty[$i] / $lims_sale_unit_data->operation_value;
                         //deduct quantity
                         $lims_product_data->qty = $lims_product_data->qty - $quantity;
-                        //$lims_product_data->save();
+                        $lims_product_data->save();
                         //deduct product variant quantity if exist
                         if($lims_product_data->is_variant) {
                             $lims_product_variant_data->qty -= $quantity;
-                           // $lims_product_variant_data->save();
+                            $lims_product_variant_data->save();
                             $lims_product_warehouse_data = Product_Warehouse::FindProductWithVariant($id, $lims_product_variant_data->variant_id, $data['warehouse_id'])->first();
                         }
                         elseif($product_batch_id[$i]) {
@@ -1334,14 +1334,14 @@ $lims_sale_data = Compliy::create($newData);
                             //deduct product batch quantity
                             $lims_product_batch_data->qty -= $quantity;
 
-                            // $lims_product_batch_data->save();
+                         $lims_product_batch_data->save();
                         }
                         else {
                             $lims_product_warehouse_data = Product_Warehouse::FindProductWithoutVariant($id, $data['warehouse_id'])->first();
                         }
                         //deduct quantity from warehouse
                         $lims_product_warehouse_data->qty -= $quantity;
-                        //$lims_product_warehouse_data->save();
+                        $lims_product_warehouse_data->save();
                     }
                 }
                 else
@@ -1479,7 +1479,7 @@ $lims_sale_data = Compliy::create($newData);
                 elseif ($paying_method == 'Gift Card') {
                     $lims_gift_card_data = GiftCard::find($data['gift_card_id']);
                     $lims_gift_card_data->expense += $data['paid_amount'];
-                    //$lims_gift_card_data->save();
+                    $lims_gift_card_data->save();
                     PaymentWithGiftCard::create($data);
                 }
                 elseif ($paying_method == 'Cheque') {
@@ -1537,11 +1537,11 @@ $lims_sale_data = Compliy::create($newData);
                 }
                 elseif($paying_method == 'Deposit'){
                     $lims_customer_data->expense += $data['paid_amount'];
-                   // $lims_customer_data->save();
+                    $lims_customer_data->save();
                 }
                 elseif($paying_method == 'Points'){
                     $lims_customer_data->points -= $data['used_points'];
-                    //$lims_customer_data->save();
+                    $lims_customer_data->save();
                 }
             }
         /*}
