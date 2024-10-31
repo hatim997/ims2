@@ -36,14 +36,14 @@
                             
                         
                     }
-                    if(str_contains($data->reference_no, 'spr') || str_contains($data->reference_no, 'prr') || (str_contains($data->reference_no, 'mtr') && $data->to_account_id == $lims_account_data->id) ) {
-                        $balance += $data->amount;
-                        $credit = $data->amount;
+                    if(str_contains($data->reference_no, 'spr') || str_contains($data->reference_no, 'prr') || str_contains($data->reference_no, 'mtr') || (str_contains($data->reference_no, 'pr')  && $data->to_account_id == $lims_account_data->id) ) {
+                        $balance += floatval($data->amount);
+                        $credit = floatval($data->amount);
                         $debit = 0;
                     }
                     else {
-                        $balance -= $data->amount;
-                        $debit = $data->amount;
+                        $balance -= floatval($data->amount);
+                        $debit = floatval($data->amount);
                         $credit = 0;
                     }
                   
@@ -51,11 +51,11 @@
                 <tr>
                     <td>{{$key}}</td>
                     <td data-sort="{{date('Y-m-d', strtotime($data->created_at->toDateString()))}}">{{date($general_setting->date_format, strtotime($data->created_at->toDateString()))}}</td>
-                    <td>{{$data->reference_no}}</td>
+                    <td>{{$data->reference_no ?? $data->name}}</td>
                     @if($transaction)
                         <td>{{$transaction->company_name}}</td>
                     @else
-                        <td></td>
+                        <td>{{$data->type ?? $data->activity}}</td>
                     @endif
                     <td>{{number_format((float)$credit, $general_setting->decimal, '.', '')}}</td>
                     <td>{{number_format((float)$debit, $general_setting->decimal, '.', '')}}</td>

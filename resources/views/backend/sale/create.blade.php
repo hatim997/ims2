@@ -1002,6 +1002,9 @@
             });
         });
 
+
+
+
         function isCashRegisterAvailable(warehouse_id) {
             $.ajax({
                 url: '../cash-register/check-availability/' + warehouse_id,
@@ -1020,6 +1023,9 @@
                 }
             });
         }
+
+
+
 
         function productSearch(data) {
             console.log(data);

@@ -199,6 +199,8 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
         $payroll_list = new Collection;
         $recieved_money_transfer_list = new Collection;
         $sent_money_transfer_list = new Collection;
+        $allocate = new Collection;
+        $medical_activity = new Collection;
 
         if($data['type'] == '0' || $data['type'] == '2') {
             $credit_list = Payment::whereNotNull('sale_id')
@@ -246,6 +248,19 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
                                         ->whereDate('created_at', '<=' , $data['end_date'])
                                         ->select('reference_no', 'to_account_id', 'amount', 'created_at')
                                         ->get();
+            $allocate = Allocate::where( 'allocates.account_id', $data['account_id'])
+                                        ->join('purchases',  'allocates.purches_id' ,'=','purchases.id')
+                                        ->whereDate('allocates.created_at', '>=' , $data['start_date'])
+                                        ->whereDate('allocates.created_at', '<=' , $data['end_date'])
+                                        ->select('purchases.reference_no', 'allocates.type', 'allocates.amont', 'allocates.created_at')
+                                        ->get();
+            $medical_activity = Medicine_Activity::where( 'medicine__activities.account_id', $data['account_id'])
+                                        ->join('docters', 'medicine__activities.doc_id' ,'=','docters.id')
+                                        ->whereDate('medicine__activities.created_at', '>=' , $data['start_date'])
+                                        ->whereDate('medicine__activities.created_at', '<=' , $data['end_date'])
+                                        ->select('docters.name', 'medicine__activities.activity', 'medicine__activities.amount', 'medicine__activities.created_at')
+                                        ->get();
+            
         }
         $all_transaction_list = new Collection;
         $all_transaction_list = $credit_list->concat($recieved_money_transfer_list)
@@ -255,6 +270,8 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
                                 ->concat($purchase_return_list)
                                 ->concat($payroll_list)
                                 ->concat($sent_money_transfer_list)
+                                ->concat($allocate)
+                                ->concat($medical_activity)
                                 ->sortByDesc('created_at');
         $balance = 0;
         return view('backend.account.account_statement', compact('lims_account_data', 'all_transaction_list', 'balance'));

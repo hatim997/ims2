@@ -415,7 +415,7 @@ $legder_report_active = $role_has_permissions_list->where('name', 'ledger-report
                     <li id="product-report-menu">
                         {!! Form::open(['route' => 'report.product', 'method' => 'get', 'id' => 'product-report-form']) !!}
                         <input type="hidden" name="start_date" value="{{date('Y-m').'-'.'01'}}"/>
-                        <input type="hidden" name="end_date" value="{{date('Y-m-d')}}"/>
+                        <input type="hidden" name="end_date" value="{{date('Y-m-d')}}  "/>
                         <input type="hidden" name="warehouse_id" value="0"/>
                         <a id="report-link" href="">{{trans('file.Product Report')}}</a>
                         {!! Form::close() !!}
