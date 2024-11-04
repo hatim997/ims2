@@ -15,4 +15,6 @@ class Docter extends Model
 {
     return $this->hasMany(MedicineActivity::class, 'doc_id');
 }
+
+
 }

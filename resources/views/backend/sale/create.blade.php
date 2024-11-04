@@ -122,6 +122,22 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <div class="col-md-4" id="doctor_ids">
+                                            <div class="form-group">
+                                                <label>Doctor *</label>
+                                                <select  name="doctor_id" id="doctor_id" class="selectpicker form-control"
+                                                        data-live-search="true" data-live-search-style="begins"
+                                                        title="Select Biller...">
+                                                    @foreach($lims_doctor_list as $biller)
+                                                        <option
+                                                            value="{{$biller->id}}">{{$biller->name . ' (' . $biller->company_name . ')'}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+
 {{--                                        <div class="col-md-2">--}}
 {{--                                            <div class="form-group">--}}
 {{--                                                <label>{{trans('file.Currency')}} *</label>--}}
@@ -695,6 +711,35 @@
 @push('scripts')
     <script type="text/javascript">
 
+$(document).ready(function() {
+
+const customerSelect = $('#customer_id'); // jQuery selector for customer select box
+        const doctorSelect = $('#doctor_id');
+        const doctorSelects = $('#doctor_ids');// jQuery selector for doctor select box
+console.log( doctorSelect );
+    // Initially hide the doctor select box
+    doctorSelects.css('display', 'none');
+            function loadDoctorOptions(customerId) {
+        if (customerId === '5') {
+            // Show doctor select box
+            doctorSelects.css('display', 'block');        
+          
+        } else {
+            // Hide doctor select box if not "COMPLEMENTRY"
+            doctorSelects.css('display', 'none');
+        }
+    }
+    // Event listener for customer selection change
+    customerSelect.on('change', function() {
+        const selectedCustomerId = $(this).val();
+        loadDoctorOptions(selectedCustomerId);
+    });
+
+
+});
+
+
+
         $("ul#sale").siblings('a').attr('aria-expanded', 'true');
         $("ul#sale").addClass("show");
         $("ul#sale #sale-create-menu").addClass("active");
@@ -801,6 +846,14 @@
         var row_product_price;
         var pos;
         var role_id = <?php echo json_encode(Auth::user()->role_id) ?>;
+
+
+       
+
+
+
+
+        
 
         $('.selectpicker').selectpicker({
             style: 'btn-link',

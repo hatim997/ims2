@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\CustomerGroup;
 use App\Models\Warehouse;
 use App\Models\Biller;
+use App\Models\Docter;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
@@ -634,6 +635,9 @@ class SaleController extends Controller
                 $nestedData['key'] = $key;
                 $nestedData['date'] = date(config('date_format'), strtotime($sale->created_at->toDateString()));
                 $nestedData['reference_no'] = $sale->reference_no;
+                $doctor_name = DB::table('docters')->where('id', $sale->doctor_id)->value('name');
+
+                $nestedData['docter'] = $doctor_name;
                 $nestedData['biller'] = $sale->biller->name;
                 $nestedData['customer'] = $sale->customer->name.'<br>'.$sale->customer->phone_number.'<input type="hidden" class="deposit" value="'.($sale->customer->deposit - $sale->customer->expense).'" />'.'<input type="hidden" class="points" value="'.$sale->customer->points.'" />';
 
@@ -766,6 +770,7 @@ class SaleController extends Controller
                 $lims_warehouse_list = Warehouse::where('is_active', true)->get();
                 $lims_biller_list = Biller::where('is_active', true)->get();
             }
+            $lims_doctor_list = Docter::where('is_active', true)->get();
 
             $lims_tax_list = Tax::where('is_active', true)->get();
             $lims_pos_setting_data = PosSetting::latest()->first();
@@ -779,7 +784,7 @@ class SaleController extends Controller
             $numberOfInvoice = Sale::count();
             $custom_fields = CustomField::where('belongs_to', 'sale')->get();
             $lims_customer_group_all = CustomerGroup::where('is_active', true)->get();
-            return view('backend.sale.create',compact('currency_list', 'lims_customer_list', 'lims_warehouse_list', 'lims_biller_list', 'lims_pos_setting_data', 'lims_tax_list', 'lims_reward_point_setting_data','options', 'numberOfInvoice', 'custom_fields', 'lims_customer_group_all'));
+            return view('backend.sale.create',compact('currency_list', 'lims_customer_list', 'lims_warehouse_list', 'lims_biller_list','lims_doctor_list', 'lims_pos_setting_data', 'lims_tax_list', 'lims_reward_point_setting_data','options', 'numberOfInvoice', 'custom_fields', 'lims_customer_group_all'));
         }
         else
             return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
@@ -1202,6 +1207,7 @@ $lims_sale_data = Compliy::create($newData);
                 else
                     $data['queue'] = 1;
             }
+            // dd($data);
             //inserting data to sales table
             $lims_sale_data = Sale::create($data);
             //inserting data for custom fields
@@ -1216,6 +1222,9 @@ $lims_sale_data = Compliy::create($newData);
                         $custom_field_data[$field_name] = $data[$field_name];
                 }
             }
+            DB::table('sales')->where('id', $lims_sale_data->id)->update([  'doctor_id' => $data['doctor_id']]);
+
+
             if(count($custom_field_data))
                 DB::table('sales')->where('id', $lims_sale_data->id)->update($custom_field_data);
             $lims_customer_data = Customer::find($data['customer_id']);
