@@ -455,25 +455,35 @@ class SaleController extends Controller
       
     
     $allocationResult = allocatePayment($totalPayment, $transactions);
-        
-       
-        // Update paid_amount and payment_status for allocated transactions
-        foreach ($allocationResult['allocated'] as $allocated) {
-            $transaction = Purchase::where('reference_no', $allocated['reference_no'])->first();
-          
-            if ($transaction) {
-                // Update the transaction
-                $transaction->paid_amount += $allocated['allocated_amount'];
-                if ($transaction->paid_amount == $transaction->grand_total) {
-                    $transaction->payment_status = 2; // Mark the payment as done
-                }
-                $transaction->save();
+
+    // Update paid_amount and payment_status for allocated transactions
+    foreach ($allocationResult['allocated'] as $allocated) {
+        $transaction = Purchase::where('reference_no', $allocated['reference_no'])->first();
+    
+        if ($transaction) {
+            // Add only the allocated amount, ensuring paid_amount doesn't exceed grand_total
+            $transaction->paid_amount = min(
+                $transaction->paid_amount + $allocated['allocated_amount'],
+                $transaction->grand_total
+            );
+    
+            // Calculate balance and set payment status
+            $balance = $transaction->grand_total - $transaction->paid_amount;
+    
+            if ($balance > 0) {
+                $transaction->payment_status = 1; // Partially paid
+            } elseif ($balance == 0) {
+                $transaction->payment_status = 2; // Fully paid
+            }
+    
+            $transaction->save();
                 $filePath = null; // Default value if no file is uploaded
 
                 if ($request->hasFile('file')) {
                     $filePath = $request->file('file')->store('uploads'); // Store the file if it exists
                 }
                 // Store in allocate table
+           if   ($allocated['allocated_amount'] != 0) {
                 Allocate::create([
                     'type' => $request->input('type'),  
                     'purches_id' => $transaction->id,  // Store Purchase ID
@@ -482,6 +492,18 @@ class SaleController extends Controller
                     'comment' => $request->input('comment'),
                     'file' => $filePath,  // Store uploaded file if needed
                 ]);
+                
+        $lims_payment_data = new Payment();
+        $lims_payment_data->user_id = Auth::id();
+        $lims_payment_data->purchase_id = $transaction->id;
+        $lims_payment_data->account_id = $request->input('account_id');
+        $lims_payment_data->payment_reference = 'ppr-' . date("Ymd") . '-'. date("his");
+        $lims_payment_data->amount = $allocated['allocated_amount'];
+        $lims_payment_data->change = 0;
+        $lims_payment_data->paying_method = $request->input('type');
+        $lims_payment_data->payment_note =$request->input('comment');
+        $lims_payment_data->save();
+            }
 
                 $account = Account::find($request->input('account_id')); // Get the account
                 if ($account) {
