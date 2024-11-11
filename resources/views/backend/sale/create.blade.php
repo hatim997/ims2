@@ -1165,7 +1165,9 @@ console.log( doctorSelect );
         rowindex = newRow.index();
 
         // Set product price again if necessary
+       
         product_price[rowindex] = parseFloat(data[2]);
+        console.log( product_price[rowindex] ,'first');
         product_discount.splice(rowindex, 0, '{{number_format(0, $general_setting->decimal, '.', '')}}');// Corrected line
         tax_rate.splice(rowindex, 0, parseFloat(data[3]));
         tax_name.splice(rowindex, 0, data[4]);
@@ -1225,6 +1227,7 @@ console.log( doctorSelect );
                 $("#edit_unit").show();
             } else {
                 row_product_price = product_price[rowindex];
+                console.log(row_product_price ,'edited')
                 $("#edit_unit").hide();
             }
             $('input[name="edit_unit_price"]').val(row_product_price.toFixed({{$general_setting->decimal}}));
@@ -1242,8 +1245,9 @@ console.log( doctorSelect );
                     success: function (data) {
                       
                         pos = product_code.indexOf($('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ') .product-code').val());
-                         product_price[rowindex] = parseFloat(data[0] * currency['exchange_rate']) + parseFloat(data[0] * currency['exchange_rate'] * customer_group_rate);
-                    }
+                        //  product_price[rowindex] = parseFloat(data[0] * currency['exchange_rate']) + parseFloat(data[0] * currency['exchange_rate'] * customer_group_rate);
+                        //   console.log( product_price[rowindex] ,"checking");
+                        }
                 });
             }
             $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ') .qty').val(qty);
@@ -1309,7 +1313,7 @@ console.log( doctorSelect );
                 unitConversion();
             else
                 row_product_price = product_price[rowindex];
-
+            console.log( row_product_price ,"asdsa");
             $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('.discount').text((product_discount[rowindex] * quantity).toFixed({{$general_setting->decimal}}));
             $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('.discount-value').val((product_discount[rowindex] * quantity).toFixed({{$general_setting->decimal}}));
             $('table.order-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('.tax-rate').val(tax_rate[rowindex].toFixed({{$general_setting->decimal}}));
