@@ -239,9 +239,9 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
                             ->select('reference_no', 'grand_total as amount', 'created_at')
                             ->get();
             $payroll_list = Payroll::where('account_id', $data['account_id'])
-                            ->whereDate('created_at', '>=' , $data['start_date'])
-                            ->whereDate('created_at', '<=' , $data['end_date'])
-                            ->select('reference_no', 'amount', 'created_at')
+                            ->whereDate('date_at', '>=' , $data['start_date'])
+                            ->whereDate('date_at', '<=' , $data['end_date'])
+                            ->select('reference_no', 'amount', 'date_at as created_at')
                             ->get();
             $sent_money_transfer_list = MoneyTransfer::where('from_account_id', $data['account_id'])
                                         ->whereDate('created_at', '>=' , $data['start_date'])
