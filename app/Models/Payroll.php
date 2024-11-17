@@ -8,8 +8,9 @@ class Payroll extends Model
 {
     protected $fillable =[
         "reference_no", "employee_id", "account_id", "user_id",
-        "amount", "paying_method", "note"
+        "amount", "paying_method", "note","date_at"
     ];
+    // protected $guarded = [];
 
     public function employee()
     {

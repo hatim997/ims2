@@ -44,10 +44,7 @@ class PayrollController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        if(isset($data['created_at']))
-            $data['created_at'] = date("Y-m-d", strtotime(str_replace("/", "-", $data['created_at'])));
-        else
-            $data['created_at'] = date("Y-m-d");
+    
         $data['reference_no'] = 'payroll-' . date("Ymd") . '-'. date("his");
         $data['user_id'] = Auth::id();
         Payroll::create($data);
@@ -77,17 +74,33 @@ class PayrollController extends Controller
         //
     }
 
+
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        if(isset($data['created_at']))
-            $data['created_at'] = date("Y-m-d", strtotime(str_replace("/", "-", $data['created_at'])));
-        else
-            $data['created_at'] = date("Y-m-d");
+        // dd('date', $data);
+
         $lims_payroll_data = Payroll::find($data['payroll_id']);
-        $lims_payroll_data->update($data);
-        return redirect('payroll')->with('message', 'Payroll updated succesfully');
+
+       
+        if ($lims_payroll_data) {
+            $lims_payroll_data->date_at = $data['date_at']; // Assign formatted date
+            $lims_payroll_data->employee_id = $data['employee_id'];
+            $lims_payroll_data->account_id = $data['account_id'];
+            $lims_payroll_data->amount = $data['amount'];
+            $lims_payroll_data->paying_method = $data['paying_method'];
+            $lims_payroll_data->note = $data['note'];
+            $lims_payroll_data->save();
+
+            $mesaag= "Payroll updated succesfully.";
+        } else {
+            $mesaag= "Record not found.";
+        }
+        return redirect('payroll')->with('message',  $mesaag);
     }
+
+
+
 
     public function deleteBySelection(Request $request)
     {

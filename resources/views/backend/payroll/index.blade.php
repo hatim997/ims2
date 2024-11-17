@@ -31,7 +31,7 @@
                 @endphp
                 <tr data-id="{{$payroll->id}}">
                     <td>{{$key}}</td>
-                    <td>{{date($general_setting->date_format, strtotime($payroll->created_at->toDateString())) }}</td>
+                    <td>{{$payroll->date_at }}</td>
                     <td>{{ $payroll->reference_no }}</td>
                     <td>{{ $employee->name}}</td>
                     <td>{{ $account->name}}</td>
@@ -51,7 +51,7 @@
                             </button>
                             <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
                                 <li>
-                                    <button type="button" data-id="{{$payroll->id}}" data-date="{{date('d-m-Y', strtotime($payroll->created_at->toDateString()))}}" data-reference="{{$payroll->reference_no}}" data-employee="{{$payroll->employee_id}}" data-account="{{$payroll->account_id}}" data-amount="{{$payroll->amount}}" data-note="{{$payroll->note}}" data-paying_method="{{$payroll->paying_method}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
+                                    <button type="button" data-id="{{$payroll->id}}" data-date="{{date('d-m-Y', strtotime($payroll->date_at))}}" data-reference="{{$payroll->reference_no}}" data-employee="{{$payroll->employee_id}}" data-account="{{$payroll->account_id}}" data-amount="{{$payroll->amount}}" data-note="{{$payroll->note}}" data-paying_method="{{$payroll->paying_method}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
                                 </li>
                                 <li class="divider"></li>
                                 {{ Form::open(['route' => ['payroll.destroy', $payroll->id], 'method' => 'DELETE'] ) }}
@@ -94,7 +94,7 @@
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Date')}}</label>
-                        <input type="text" name="created_at" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
+                        <input type="text" name="date_at" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
                     </div>
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Employee')}} *</label>
@@ -155,7 +155,7 @@
                 <div class="row">
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Date')}}</label>
-                        <input type="text" name="created_at" class="form-control date" placeholder="Choose date" />
+                        <input type="text" name="date_at" class="form-control date" placeholder="Choose date" />
                     </div>
                     <div class="col-md-6 form-group">
                         <input type="hidden" name="payroll_id">
@@ -232,7 +232,7 @@
 
     $(document).on('click', '.edit-btn', function() {
         $("#editModal input[name='payroll_id']").val( $(this).data('id') );
-        $("#editModal input[name='created_at']").val( $(this).data('date') );
+        $("#editModal input[name='date_at']").val( $(this).data('date') );
         $("#editModal select[name='employee_id']").val( $(this).data('employee') );
         $("#editModal select[name='account_id']").val( $(this).data('account') );
         $("#editModal input[name='amount']").val( $(this).data('amount') );
