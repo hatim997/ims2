@@ -22,6 +22,7 @@
             </thead>
             <tbody>
                 @foreach($all_transaction_list as $key => $data)
+                {{-- {{dd($all_transaction_list->toArray())}} --}}
                 <?php
                     $transaction = '';
                     if($data->sale_id){

@@ -47,7 +47,18 @@ class PayrollController extends Controller
     
         $data['reference_no'] = 'payroll-' . date("Ymd") . '-'. date("his");
         $data['user_id'] = Auth::id();
+     
+        $data['date_at'] = date("Y-m-d", strtotime( $data['date_at']));
+                    // dd(  $data['date_at'] );
+
+
         Payroll::create($data);
+
+
+
+
+
+
         $message = 'Payroll creared succesfully';
         //collecting mail data
         $lims_employee_data = Employee::find($data['employee_id']);
@@ -81,7 +92,7 @@ class PayrollController extends Controller
         // dd('date', $data);
 
         $lims_payroll_data = Payroll::find($data['payroll_id']);
-
+        $data['date_at'] = date("Y-m-d", strtotime( $data['date_at']));
        
         if ($lims_payroll_data) {
             $lims_payroll_data->date_at = $data['date_at']; // Assign formatted date
