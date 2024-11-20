@@ -573,8 +573,9 @@
         rowindex = $(this).closest('tr').index();
         deposit = $('table.sale-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('.deposit').val();
         var sale_id = $(this).data('id').toString();
-        var balance = $('table.sale-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(12)').text();
+        var balance = $('table.sale-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(13)').text();
         balance = parseFloat(balance.replace(/,/g, ''));
+       
         $('input[name="paying_amount"]').val(balance);
         $('#add-payment input[name="balance"]').val(balance);
         $('input[name="amount"]').val(balance);

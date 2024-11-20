@@ -422,6 +422,16 @@
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <div class="form-group">
+                                                    <label>Account *</label>
+                                                    <select name="account_id" class="selectpicker form-control" data-live-search="true" data-live-search-style="begins" title="Select Account...">
+                                                        @foreach($lims_account as $category)
+                                                            <option value="{{$category->id}}">{{$category->name}}</option>
+                                                        @endforeach
+                                                      </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
                                                     <label>{{trans('file.Paid By')}}</label>
                                                     <select name="paid_by_id" class="form-control">
                                                         @if(in_array("cash",$options))

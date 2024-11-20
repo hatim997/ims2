@@ -793,7 +793,7 @@ class SaleController extends Controller
                 $lims_biller_list = Biller::where('is_active', true)->get();
             }
             $lims_doctor_list = Docter::where('is_active', true)->get();
-
+            $lims_account = Account::where('is_active', 1)->get();
             $lims_tax_list = Tax::where('is_active', true)->get();
             $lims_pos_setting_data = PosSetting::latest()->first();
             $lims_reward_point_setting_data = RewardPointSetting::latest()->first();
@@ -806,7 +806,7 @@ class SaleController extends Controller
             $numberOfInvoice = Sale::count();
             $custom_fields = CustomField::where('belongs_to', 'sale')->get();
             $lims_customer_group_all = CustomerGroup::where('is_active', true)->get();
-            return view('backend.sale.create',compact('currency_list', 'lims_customer_list', 'lims_warehouse_list', 'lims_biller_list','lims_doctor_list', 'lims_pos_setting_data', 'lims_tax_list', 'lims_reward_point_setting_data','options', 'numberOfInvoice', 'custom_fields', 'lims_customer_group_all'));
+            return view('backend.sale.create',compact('currency_list', 'lims_customer_list','lims_account', 'lims_warehouse_list', 'lims_biller_list','lims_doctor_list', 'lims_pos_setting_data', 'lims_tax_list', 'lims_reward_point_setting_data','options', 'numberOfInvoice', 'custom_fields', 'lims_customer_group_all'));
         }
         else
             return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
@@ -1456,9 +1456,11 @@ $lims_sale_data = Compliy::create($newData);
                 }
 
                 if($cash_register_data)
-                    $lims_payment_data->cash_register_id = $cash_register_data->id;
-                $lims_account_data = Account::where('is_default', true)->first();
-                $lims_payment_data->account_id = $lims_account_data->id;
+                $lims_payment_data->cash_register_id = $cash_register_data->id;
+                // $lims_account_data = Account::where('is_default', true)->first();
+                $lims_payment_data->account_id = $data['account_id'];
+                $acoun = Account::find($data['account_id']);
+                if($acoun){ $acoun->total_balance += $data['paid_amount']; $acoun->save(); } 
                 $lims_payment_data->sale_id = $lims_sale_data->id;
                 $data['payment_reference'] = 'spr-'.date("Ymd").'-'.date("his");
                 $lims_payment_data->payment_reference = $data['payment_reference'];

@@ -1072,6 +1072,14 @@ class PurchaseController extends Controller
         else
             $paying_method = 'Cheque';
 
+            $acoun = Account::find($data['account_id']);
+
+            if($acoun){
+                $acoun->total_balance -= $data['amount'];                
+                $acoun->save();            
+          } 
+            
+
         $lims_payment_data = new Payment();
         $lims_payment_data->user_id = Auth::id();
         $lims_payment_data->purchase_id = $lims_purchase_data->id;
