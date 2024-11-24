@@ -3516,6 +3516,15 @@ if ($product_batch) {
             $lims_customer_data->save();
         }
         //updating payment data
+        // $lims_sale_data = Sale::find($lims_payment_data->sale_id);
+        $payment_datas = Payment::find($data['payment_id']);
+        
+        $acouns = Account::find($payment_datas->account_id);
+        if($acouns){ $acouns->total_balance -= $data['edit_amount']; $acouns->save(); } 
+
+        $acoun = Account::find($data['account_id']);
+        if($acoun){ $acoun->total_balance += $data['edit_amount']; $acoun->save(); } 
+
         $lims_payment_data->account_id = $data['account_id'];
         $lims_payment_data->amount = $data['edit_amount'];
         $lims_payment_data->change = $data['edit_paying_amount'] - $data['edit_amount'];
