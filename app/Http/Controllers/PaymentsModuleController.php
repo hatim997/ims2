@@ -16,9 +16,11 @@ class PaymentsModuleController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->toArray());
         $data = new PaymentsModule();
         $data->type = $request->type;
         $data->amount = $request->amount;
+        $data->receive_date = $request->receive_date;
         $data->mode = $request->mode;
         $data->description = $request->description;
         $data->is_active = true;
@@ -40,6 +42,7 @@ class PaymentsModuleController extends Controller
         $lims_brand_data = PaymentsModule::findOrFail($request->brand_id);
         $lims_brand_data->type = $request->type;
         $lims_brand_data->amount = $request->amount;
+        $lims_brand_data->receive_date = $request->receive_date;
         $lims_brand_data->mode = $request->mode;
         $lims_brand_data->description = $request->description;
         $lims_brand_data->is_active = true;

@@ -77,3 +77,6 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # salepro
+
+
+<!-- ALTER TABLE `payments_modules` ADD `receive_date` TIMESTAMP NULL DEFAULT NULL AFTER `amount`; -->
