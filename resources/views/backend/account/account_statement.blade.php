@@ -28,14 +28,14 @@
                     if($data->sale_id){
                         $transactionn = App\Models\Sale::select('reference_no','customer_id')->find($data->sale_id);
                     $transaction  =  App\Models\Customer::select('company_name')->find($transactionn->customer_id);
-                         
+
                     }
                     elseif($data->purchase_id){
                         $transactionn = App\Models\Purchase::select('reference_no','supplier_id')->find($data->purchase_id);
-                       
+
                            $transaction = App\Models\Supplier::select('company_name')->find($transactionn->supplier_id);
-                            
-                        
+
+
                     }
                     if(str_contains($data->reference_no, 'spr') || str_contains($data->reference_no, 'prr') || str_contains($data->reference_no, 'mtr') || (str_contains($data->reference_no, 'pr')  && $data->to_account_id == $lims_account_data->id) ) {
                         $balance += floatval($data->amount);
@@ -47,11 +47,14 @@
                         $debit = floatval($data->amount);
                         $credit = 0;
                     }
-                  
+
                 ?>
                 <tr>
                     <td>{{$key}}</td>
-                    <td data-sort="{{date('Y-m-d', strtotime($data->created_at->toDateString()))}}">{{date($general_setting->date_format, strtotime($data->created_at->toDateString()))}}</td>
+                    {{-- <td data-sort="{{date('Y-m-d', strtotime($data->created_at))}}">{{date($general_setting->date_format, strtotime($data->created_at))}}</td> --}}
+                    <td data-sort="{{date('Y-m-d', strtotime($data->created_at))}}">
+                        {{date('d M Y', strtotime($data->created_at))}}
+                    </td>
                     <td>{{$data->reference_no ?? $data->name}}</td>
                     @if($transaction)
                         <td>{{$transaction->company_name}}</td>

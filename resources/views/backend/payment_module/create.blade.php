@@ -23,26 +23,26 @@
                 <thead>
                 <tr>
                     <th class="not-exported"></th>
-                    <th>type</th>
+                    <th>date</th>
+                    <th>payment reference</th>
                     <th>amount</th>
-                    <th>receive date</th>
-                    <th>mode</th>
-                    <th>description</th>
+                    <th>sale/purchase reference</th>
+                    {{-- <th>description</th> --}}
                     {{-- <th>Date</th> --}}
-                    <th class="not-exported">{{trans('file.action')}}</th>
+                    {{-- <th class="not-exported">{{trans('file.action')}}</th> --}}
                 </tr>
                 </thead>
                 <tbody>
                 @foreach($lims_brand_all as $key=>$brand)
                     <tr data-id="{{$brand->id}}">
                         <td>{{$key}}</td>
-                        <td>{{ $brand->type }}</td>
+                        <td>{{ $brand->ndate ? \Illuminate\Support\Facades\Date::make($brand->ndate)->format("F/j/Y") : 'N/A' }}</td>
+                        <td>{{ $brand->payment_reference }}</td>
                         <td>{{ $brand->amount }}</td>
-                        <td>{{ \Illuminate\Support\Facades\Date::make($brand->receive_date)->format("d/m/y") }}</td>
-                        <td>{{ $brand->mode }}</td>
-                        <td>{{ $brand->description }}</td>
+                        <td>{{ $brand->s_reference_no ?? $brand->p_reference_no }}</td>
+                        {{-- <td>{{ $brand->description }}</td> --}}
                         {{-- <td>{{ \Illuminate\Support\Facades\Date::make($brand->created_at)->format("d/m/y") }}</td> --}}
-                        <td>
+                        {{-- <td>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{trans('file.action')}}
                                     <span class="caret"></span>
@@ -58,7 +58,7 @@
                                     {{ Form::close() }}
                                 </ul>
                             </div>
-                        </td>
+                        </td> --}}
                     </tr>
                 @endforeach
                 </tbody>

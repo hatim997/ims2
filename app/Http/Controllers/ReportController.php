@@ -15,10 +15,12 @@ use App\Models\Transfer;
 use App\Models\Returns;
 use App\Models\ProductReturn;
 use App\Models\ReturnPurchase;
+use App\Models\MoneyTransfer;
 use App\Models\ProductTransfer;
 use App\Models\PurchaseProductReturn;
 use App\Models\Payment;
 use App\Models\PaymentsModule;
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\Warehouse;
 use App\Models\Product_Warehouse;
 use App\Models\Expense;
@@ -1723,83 +1725,68 @@ class ReportController extends Controller
         $lims_payment_data = Payment::whereDate('created_at', '>=', $start_date)->whereDate('created_at', '<=', $end_date)->get();
         return view('backend.report.payment_report', compact('lims_payment_data', 'start_date', 'end_date'));
     }
-    
-    
-    
+
+
+
       public function legderReportByDate(Request $request)
 
     {$data = $request->all();
-        $startDate = '2022-01-01';
-        $endDate = '2024-01-03';
-        
-        //$startDate = $data['start_date'];
-        //$endDate = $data['end_date'];
-    $ob = (int)$data['OB'];
-        $debitEntries = PaymentsModule::whereBetween('created_at', [$startDate, $endDate])->get();
-        $creditEntries = Sale::whereBetween('sales.created_at', [$startDate, $endDate])
-            ->join('customers', 'sales.customer_id', '=', 'customers.id')
-            ->where('sales.grand_total', '>', 0)
-            ->select('sales.*', 'customers.company_name as customer_name')
-            ->get();
-        
-        $ledgerEntries = [];
-        $balance = $ob; // Initialize balance        
+        // $startDate = '2022-01-01';
+        // $endDate = '2024-01-03';
+        $startDate = $data['start_date'];
+        $endDate = $data['end_date'];
+        // $lims_account_data = Account::find($data['account_id']);
+        $credit_list = new Collection;
+        $debit_list = new Collection;
+        $expense_list = new Collection;
 
-        $openingBalanceEntry = [
-            'date' => Carbon::parse($startDate), // Use the start date as the date for the opening balance
-            'reference_no' => 'Opening Balancesss',
-            'description' => ' ',
-            'credit_amount' => 0,
-            'debit_amount' => 0,
-            'balance' => 0, // Set the opening balance amount if known
-        ];
-       
-        $ledgerEntries[] = $openingBalanceEntry;
-        // Combine credit and debit entries into ledger
-        foreach ($creditEntries as $credit) {
-           
-            $ledger = [
-                'date' => $credit->created_at,
-                'reference_no' => $credit->reference_no,
-                'description' => $credit->customer_name,
-                'credit_amount' =>$credit->grand_total,
-                'debit_amount' => 0,
-                'balance' => 0,
-            ];
-            $balance += (int)$ledger['credit_amount'] - (int)$ledger['debit_amount'];
-            $ledger['balance'] = $balance;
-            $ledgerEntries[] = $ledger;
-        }
-        
-        foreach ($debitEntries as $debit) {
-            $ledger = [
-                'date' => $debit->created_at,
-                'reference_no' => "",
-                'description' => $debit->description,
-                'credit_amount' => 0,
-                'debit_amount' =>  str_replace(',', '', $debit->amount),
-                'balance' => 0,
-            ];
-            $balance += (int)$ledger['credit_amount'] - (int)$ledger['debit_amount'];
-            $ledger['balance'] = $balance;
-            $ledgerEntries[] = $ledger;
-        }
-        
-        // Sort ledger entries by date
-        usort($ledgerEntries, function ($a, $b) {
-            return strtotime($a['date']) - strtotime($b['date']);
-        });
-        
-        // Recalculate balance for each entry to fix the cumulative balance issue
-        $runningBalance =$ob;
-        foreach ($ledgerEntries as &$entry) {
-            $runningBalance += (int)$entry['credit_amount'] - (int)$entry['debit_amount'];
-            $entry['balance'] = $runningBalance;
-        }
-       //dd($ledgerEntries);
+
+        $payroll_list = new Collection;
+
+
+        $allocate = new Collection;
+        $medical_activity = new Collection;
+
+
+            $credit_list = Payment::whereNotNull('sale_id')
+                            ->where('ndate', '>=' , $data['start_date'])
+                            ->where('ndate', '<=' , $data['end_date'])
+                            ->select('payment_reference as reference_no', 'sale_id', 'amount', 'ndate as created_at')
+                            ->get();
+            $debit_list = Payment::whereNotNull('purchase_id')
+                            ->where('ndate', '>=' , $data['start_date'])
+                            ->where('ndate', '<=' , $data['end_date'])
+                            ->select('payment_reference as reference_no', 'purchase_id', 'amount', 'ndate as created_at')
+                            ->get();
+            $expense_list = Expense::whereDate('expenses.created_at', '>=' , $data['start_date'])
+                            ->join('expense_categories', 'expenses.expense_category_id' ,'=','expense_categories.id')
+                            ->whereDate('expenses.created_at', '<=' , $data['end_date'])
+                            ->select('reference_no','expense_categories.name as description', 'amount', 'expenses.created_at')
+                            ->get();
+            $payroll_list = Payroll::whereDate('date_at', '>=' , $data['start_date'])
+                            ->join('employees', 'payrolls.employee_id' ,'=','employees.id')
+                            ->whereDate('date_at', '<=' , $data['end_date'])
+                            ->select('reference_no', 'employees.name as description', 'amount', 'date_at as created_at')
+                            ->get();
+        $medical_activity = Medicine_Activity::join('docters', 'medicine__activities.doc_id' ,'=','docters.id')
+                                        ->whereDate('medicine__activities.created_at', '>=' , $data['start_date'])
+                                        ->whereDate('medicine__activities.created_at', '<=' , $data['end_date'])
+                                        ->select('docters.name as reference_no', 'medicine__activities.activity as description', 'medicine__activities.amount', 'medicine__activities.created_at')
+                                        ->get();
+
+
+        // dd($credit_list);
+        $ledgerEntries = new Collection;
+        $ledgerEntries = $credit_list->concat($debit_list)
+                                ->concat($expense_list)
+                                ->concat($payroll_list)
+                                ->concat($medical_activity)
+                                ->sortBy('created_at');
+        $balance = 0;
+    //    dd($ledgerEntries->toArray());
 //dd($data);
 
-    return View('backend.report.legder_report', compact('ledgerEntries', 'startDate', 'endDate'));
+    return View('backend.report.legder_report', compact('ledgerEntries','balance', 'startDate', 'endDate'));
 
     }
 
@@ -1818,10 +1805,10 @@ public function ManufReportByDate(Request $request)
             ->join('customers', 'sales.customer_id', '=', 'customers.id')
             ->where('sales.grand_total', '>', 0)
             ->select('sales.*', 'customers.company_name as customer_name')
-            ->get();       
-        
+            ->get();
+
         $ledgerEntries = [];
-        $balance = $ob; // Initialize balance        
+        $balance = $ob; // Initialize balance
 
         $openingBalanceEntry = [
             'date' => Carbon::parse($startDate), // Use the start date as the date for the opening balance
@@ -1831,11 +1818,11 @@ public function ManufReportByDate(Request $request)
             'debit_amount' => 0,
             'balance' => 0, // Set the opening balance amount if known
         ];
-       
+
         $ledgerEntries[] = $openingBalanceEntry;
         // Combine credit and debit entries into ledger
         foreach ($creditEntries as $credit) {
-           
+
             $ledger = [
                 'date' => $credit->created_at,
                 "reference_no" =>$credit->reference_no,
@@ -1848,7 +1835,7 @@ public function ManufReportByDate(Request $request)
             $ledger['balance'] = $balance;
             $ledgerEntries[] = $ledger;
         }
-        
+
         foreach ($debitEntries as $debit) {
             $ledger = [
                 'date' => $debit->created_at,
@@ -1862,12 +1849,12 @@ public function ManufReportByDate(Request $request)
             $ledger['balance'] = $balance;
             $ledgerEntries[] = $ledger;
         }
-        
+
         // Sort ledger entries by date
         usort($ledgerEntries, function ($a, $b) {
             return strtotime($a['date']) - strtotime($b['date']);
         });
-        
+
         // Recalculate balance for each entry to fix the cumulative balance issue
         $runningBalance =$ob;
         foreach ($ledgerEntries as &$entry) {

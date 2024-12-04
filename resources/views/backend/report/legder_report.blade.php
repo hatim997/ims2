@@ -14,7 +14,7 @@
                             <input type="text" class="daterangepicker-field form-control" value="{{$startDate}} To {{$endDate}}" required />
                             <input type="hidden" name="start_date" />
                             <input type="hidden" name="end_date" />
-                           
+
                             <input type="text" class="form-control" name="OB" />
                             <div class="input-group-append">
                                 <button class="btn btn-primary" type="submit">{{trans('file.submit')}}</button>
@@ -40,24 +40,58 @@
                                     </tr>
             </thead>
             <tbody>
+
+
                 @foreach($ledgerEntries as $entry)
-                   <?php // $sale = DB::table('sales')->find($payment->sale_id);
+                <?php // $sale = DB::table('sales')->find($payment->sale_id);
                     // $purchase = DB::table('purchases')->find($payment->purchase_id);
                     // $user = DB::table('users')->find($payment->user_id);
                 // dd($ledgerEntries);
+                $transaction = '';
+
+                if($entry->sale_id){
+                        $transactionn = App\Models\Sale::select('reference_no','customer_id')->find($entry->sale_id);
+
+                        $transaction  =  App\Models\Customer::select('company_name')->find($transactionn->customer_id);
+                        // dd($transaction);
+                    }
+                    elseif($entry->purchase_id){
+                        $transactionn = App\Models\Purchase::select('reference_no','supplier_id')->find($entry->purchase_id);
+
+                           $transaction = App\Models\Supplier::select('company_name')->find($transactionn->supplier_id);
+
+
+                    }
+                    if(str_contains($entry->reference_no, 'spr')  ) {
+                        $balance += floatval($entry->amount);
+                        $credit = floatval($entry->amount);
+                        $debit = 0;
+                    }
+                    else {
+                        $balance -= floatval($entry->amount);
+                        $debit = floatval($entry->amount);
+                        $credit = 0;
+                    }
                 ?>
+
 
                 {{-- <tr>
                     <td></td> --}}
                     {{-- <td>{{date($general_setting->date_format, strtotime($payment->created_at->toDateString())) . ' '. $payment->created_at->toTimeString()}}</td> --}}
-                       <tr {{$entry['date']->format($general_setting->date_format)}}>
+                       <tr {{$entry['created_at']->format($general_setting->date_format)}}>
                         <td></td>
-                       <td>{{ $entry['date']->format($general_setting->date_format) }}</td>
+                       <td>{{ $entry['created_at']->format($general_setting->date_format) }}</td>
                     <td>{{ $entry['reference_no'] }}</td>
-                       <td>{{ $entry['description'] }}</td>
-                       <td>{{ number_format($entry['credit_amount'], 0, '.', ',') }}</td>
-                        <td>{{ number_format($entry['debit_amount'], 0, '.', ',') }}</td>
-                       <td>{{ number_format($entry['balance'], 0, '.', ',') }}</td>
+                       <td>{{ $entry['description'] }}
+                        @if($transaction)
+                        {{$transaction->company_name}}
+
+                    @endif
+                       </td>
+
+                       <td>{{number_format((float)$credit, $general_setting->decimal, '.', '')}}</td>
+                    <td>{{number_format((float)$debit, $general_setting->decimal, '.', '')}}</td>
+                    <td>{{number_format((float)$balance, $general_setting->decimal, '.', '')}}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -68,7 +102,7 @@
                 <th></th>
                 <th>{{trans('file.Total')}}:</th>
                 <th>{{number_format(0, $general_setting->decimal, '.', '')}}</th>
-                
+
             </tfoot>
         </table>
     </div>
@@ -84,6 +118,7 @@
 
     $('#report-table').DataTable( {
         "order": [],
+        pageLength: all,
         'language': {
             'lengthMenu': '_MENU_ {{trans("file.records per page")}}',
              "info":      '<small>{{trans("file.Showing")}} _START_ - _END_ (_TOTAL_)</small>',

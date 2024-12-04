@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Allocate extends Model
 {
     protected $fillable = [
-      
-     "type", "file", "purches_id", "account_id" ,"amont" ,"comment"
+
+     "ndate", "type", "file", "purches_id", "account_id" ,"amont" ,"comment"
     ];
 }

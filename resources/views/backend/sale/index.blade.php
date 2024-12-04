@@ -76,7 +76,7 @@
                 <tr>
                     <th class="not-exported"></th>
                     <th>{{trans('file.Date')}}</th>
-                   
+
                     <th>{{trans('file.reference')}}</th>
                      <th>docter</th>
                     <th>{{trans('file.Biller')}}</th>
@@ -203,6 +203,10 @@
                     <div class="row">
                         <input type="hidden" name="balance">
                         <div class="col-md-6">
+                            <label>{{trans('file.Date')}} *</label>
+                            <input type="date" name="date" class="form-control"  step="any" required>
+                        </div>
+                        <div class="col-md-6">
                             <label>{{trans('file.Recieved Amount')}} *</label>
                             <input type="text" name="paying_amount" class="form-control numkey" step="any" required>
                         </div>
@@ -304,6 +308,10 @@
             <div class="modal-body">
                 {!! Form::open(['route' => 'sale.update-payment', 'method' => 'post', 'class' => 'payment-form' ]) !!}
                     <div class="row">
+                        <div class="col-md-6">
+                            <label>{{trans('file.Date')}} *</label>
+                            <input type="date" name="ndate" class="form-control"  step="any" required>
+                        </div>
                         <div class="col-md-6">
                             <label>{{trans('file.Recieved Amount')}} *</label>
                             <input type="text" name="edit_paying_amount" class="form-control numkey"  step="any" required>
@@ -487,8 +495,8 @@
         columns.push({"data": field_name[i]});
     }
     columns.push({"data": "options"});
-    
-    
+
+
     @if($lims_pos_setting_data)
         var public_key = <?php echo json_encode($lims_pos_setting_data->stripe_public_key) ?>;
     @endif
@@ -575,7 +583,7 @@
         var sale_id = $(this).data('id').toString();
         var balance = $('table.sale-list tbody tr:nth-child(' + (rowindex + 1) + ')').find('td:nth-child(13)').text();
         balance = parseFloat(balance.replace(/,/g, ''));
-       
+
         $('input[name="paying_amount"]').val(balance);
         $('#add-payment input[name="balance"]').val(balance);
         $('input[name="amount"]').val(balance);
@@ -663,6 +671,12 @@
                 else if(paying_method[index] == 'Points'){
                     $('select[name="edit_paid_by_id"]').val(7);
                 }
+
+                let rawDate = payment_date[index];
+                let dateObj = new Date(rawDate);
+                let formattedDate = dateObj.getFullYear() + '-' + String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
+                // alert(formattedDate);
+                $('input[name="ndate"]').val(formattedDate);
 
                 $('.selectpicker').selectpicker('refresh');
                 $("#payment_reference").html(payment_reference[index]);

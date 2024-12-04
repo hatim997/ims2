@@ -65,7 +65,6 @@ $allocateActivities = Allocate::where('account_id', $id)
 // Combine both queries using union
 $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('created_at')->get();
 
-    
 
 
 
@@ -73,10 +72,11 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
 
 
 
-    
+
+
     // // Merging the two collections (medicineActivities and allocateActivities)
     // $allActivities = $medicineActivities->merge($allocateActivities);
-    
+
     // Sort the merged collection by date (in case the dates vary between collections)
     // $lims_account_all = $allActivities->sortBy('created_at');
 
@@ -205,9 +205,9 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
         if($data['type'] == '0' || $data['type'] == '2') {
             $credit_list = Payment::whereNotNull('sale_id')
                             ->where('account_id', $data['account_id'])
-                            ->whereDate('created_at', '>=' , $data['start_date'])
-                            ->whereDate('created_at', '<=' , $data['end_date'])
-                            ->select('payment_reference as reference_no', 'sale_id', 'amount', 'created_at')
+                            ->where('ndate', '>=' , $data['start_date'])
+                            ->where('ndate', '<=' , $data['end_date'])
+                            ->select('payment_reference as reference_no', 'sale_id', 'amount', 'ndate as created_at')
                             ->get();
 
             $recieved_money_transfer_list = MoneyTransfer::where('to_account_id', $data['account_id'])
@@ -221,12 +221,13 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
                                     ->select('reference_no', 'grand_total as amount', 'created_at')
                                     ->get();
         }
+
         if($data['type'] == '0' || $data['type'] == '1') {
             $debit_list = Payment::whereNotNull('purchase_id')
                             ->where('account_id', $data['account_id'])
-                            ->whereDate('created_at', '>=' , $data['start_date'])
-                            ->whereDate('created_at', '<=' , $data['end_date'])
-                            ->select('payment_reference as reference_no', 'purchase_id', 'amount', 'created_at')
+                            ->where('ndate', '>=' , $data['start_date'])
+                            ->where('ndate', '<=' , $data['end_date'])
+                            ->select('payment_reference as reference_no', 'purchase_id', 'amount', 'ndate as created_at')
                             ->get();
             $expense_list = Expense::where('account_id', $data['account_id'])
                             ->whereDate('created_at', '>=' , $data['start_date'])
@@ -248,20 +249,21 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
                                         ->whereDate('created_at', '<=' , $data['end_date'])
                                         ->select('reference_no', 'to_account_id', 'amount', 'created_at')
                                         ->get();
-            $allocate = Allocate::where( 'allocates.account_id', $data['account_id'])
-                                        ->join('purchases',  'allocates.purches_id' ,'=','purchases.id')
-                                        ->whereDate('allocates.created_at', '>=' , $data['start_date'])
-                                        ->whereDate('allocates.created_at', '<=' , $data['end_date'])
-                                        ->select('purchases.reference_no', 'allocates.type', 'allocates.amont', 'allocates.created_at')
-                                        ->get();
+            // $allocate = Allocate::where( 'allocates.account_id', $data['account_id'])
+            //                             ->join('purchases',  'allocates.purches_id' ,'=','purchases.id')
+            //                             ->whereDate('allocates.ndate', '>=' , $data['start_date'])
+            //                             ->whereDate('allocates.ndate', '<=' , $data['end_date'])
+            //                             ->select('purchases.reference_no', 'allocates.type', 'allocates.amont', 'allocates.ndate')
+            //                             ->get();
             $medical_activity = Medicine_Activity::where( 'medicine__activities.account_id', $data['account_id'])
                                         ->join('docters', 'medicine__activities.doc_id' ,'=','docters.id')
                                         ->whereDate('medicine__activities.created_at', '>=' , $data['start_date'])
                                         ->whereDate('medicine__activities.created_at', '<=' , $data['end_date'])
                                         ->select('docters.name', 'medicine__activities.activity', 'medicine__activities.amount', 'medicine__activities.created_at')
                                         ->get();
-            
+
         }
+        // dd($credit_list);
         $all_transaction_list = new Collection;
         $all_transaction_list = $credit_list->concat($recieved_money_transfer_list)
                                 ->concat($debit_list)
@@ -270,9 +272,9 @@ $lims_account_all = $medicineActivities->union($allocateActivities)->orderBy('cr
                                 ->concat($purchase_return_list)
                                 ->concat($payroll_list)
                                 ->concat($sent_money_transfer_list)
-                                ->concat($allocate)
+                                // ->concat($allocate)
                                 ->concat($medical_activity)
-                                ->sortByDesc('created_at');
+                                ->sortBy('created_at');
         $balance = 0;
         return view('backend.account.account_statement', compact('lims_account_data', 'all_transaction_list', 'balance'));
     }

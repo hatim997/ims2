@@ -880,10 +880,10 @@
                         <div class="col-md-12 form-group">
                             <label>{{trans('file.Choose Your Date')}}</label>
                             <div class="input-group">
-                                <input type="text" class="account-statement-daterangepicker-field form-control"
-                                       required/>
-                                <input type="hidden" name="start_date"/>
-                                <input type="hidden" name="end_date"/>
+                                {{-- <input type="text" class="account-statement-daterangepicker-field form-control"
+                                       required/> --}}
+                                <input type="date" name="start_date"/>
+                                <input type="date" name="end_date"/>
                             </div>
                         </div>
                     </div>
@@ -1137,7 +1137,7 @@
         <script type="text/javascript" src="<?php echo asset('js/dropzone.js') ?>"></script>
 
         <!-- table sorter js-->
-       
+
         <script type="text/javascript" src="<?php echo asset('vendor/datatable/jquery.dataTables.min.js') ?>"></script>
         @if( Config::get('app.locale') == 'ar')
         <script type="text/javascript" src="<?php echo asset('vendor/datatable/pdfmake_arabic.min.js') ?>"></script>
@@ -1216,7 +1216,7 @@
             <script type="text/javascript" src="<?php echo asset('../../vendor/datatable/pdfmake.min.js') ?>"></script>
             <script type="text/javascript" src="<?php echo asset('../../vendor/datatable/vfs_fonts.js') ?>"></script>
         @endif
-    
+
         <script type="text/javascript"
                 src="<?php echo asset('../../vendor/datatable/dataTables.bootstrap4.min.js') ?>"></script>
         <script type="text/javascript"

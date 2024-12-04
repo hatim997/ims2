@@ -66,7 +66,7 @@ use Salla\ZATCA\Tags\InvoiceTaxAmount;
 use Salla\ZATCA\Tags\InvoiceTotalAmount;
 use Salla\ZATCA\Tags\Seller;
 use Salla\ZATCA\Tags\TaxNumber;
-
+use Carbon\Carbon;
 class SaleController extends Controller
 {
     use \App\Traits\TenantInfo;
@@ -188,9 +188,9 @@ class SaleController extends Controller
         else
             return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
     }
-    
 
-    
+
+
     public function compilyData(Request $request)
     {
         $columns = array(
@@ -366,7 +366,7 @@ class SaleController extends Controller
                                     <button type="button" class="btn btn-link view"><i class="fa fa-eye"></i> '.trans('file.View').'</button>
                                 </li>'.\Form::close().'</ul>
                     </div>';
-              
+
                 // data for sale details by one click
                 $coupon = Coupon::find($sale->coupon_id);
                 if($coupon)
@@ -394,16 +394,16 @@ class SaleController extends Controller
     }
     function allocatePayment($totalPayment, $transactions) {
         $allocated = [];
-        
+
         foreach ($transactions as $transaction) {
             // Check if the payment has been fully allocated
             if ($totalPayment <= 0) {
                 break;
             }
-            
+
             // Amount for the current transaction
             $transactionAmount = $transaction->grand_total;
-            
+
             // Allocate payment
             if ($totalPayment >= $transactionAmount) {
                 // Fully allocate this transaction
@@ -421,10 +421,10 @@ class SaleController extends Controller
                 $totalPayment = 0; // Payment fully allocated
             }
         }
-        
+
         // Check for remaining payment
         $remainingPayment = $totalPayment;
-    
+
         return [
             'allocated' => $allocated,
             'remaining_payment' => $remainingPayment
@@ -442,40 +442,41 @@ class SaleController extends Controller
     }
     public function allocate(Request $request) {
         // Validate the input
+        // dd($request->toArray());
         $request->validate([
             'payment_amount' => 'required|numeric|min:0',
         ]);
-    
+
         $totalPayment = $request->input('payment_amount');
-    
+
         // Get the payment amount from the form
         $transactions = Purchase::where('supplier_id', $request->input('suppli_id'))
     ->orderBy('created_at')
     ->get(); // Fetch transactions in FIFO order
-      
-    
+
+
     $allocationResult = allocatePayment($totalPayment, $transactions);
 
     // Update paid_amount and payment_status for allocated transactions
     foreach ($allocationResult['allocated'] as $allocated) {
         $transaction = Purchase::where('reference_no', $allocated['reference_no'])->first();
-    
+
         if ($transaction) {
             // Add only the allocated amount, ensuring paid_amount doesn't exceed grand_total
             $transaction->paid_amount = min(
                 $transaction->paid_amount + $allocated['allocated_amount'],
                 $transaction->grand_total
             );
-    
+
             // Calculate balance and set payment status
             $balance = $transaction->grand_total - $transaction->paid_amount;
-    
+
             if ($balance > 0) {
                 $transaction->payment_status = 1; // Partially paid
             } elseif ($balance == 0) {
                 $transaction->payment_status = 2; // Fully paid
             }
-    
+
             $transaction->save();
                 $filePath = null; // Default value if no file is uploaded
 
@@ -485,22 +486,24 @@ class SaleController extends Controller
                 // Store in allocate table
            if   ($allocated['allocated_amount'] != 0) {
                 Allocate::create([
-                    'type' => $request->input('type'),  
+                    'ndate' => $request->ndate,
+                    'type' => $request->input('type'),
                     'purches_id' => $transaction->id,  // Store Purchase ID
                     'account_id' => $request->input('account_id'),  // From form
                     'amont' => $allocated['allocated_amount'],
                     'comment' => $request->input('comment'),
                     'file' => $filePath,  // Store uploaded file if needed
                 ]);
-                
+
         $lims_payment_data = new Payment();
         $lims_payment_data->user_id = Auth::id();
         $lims_payment_data->purchase_id = $transaction->id;
+        $lims_payment_data->ndate = $request->ndate;
         $lims_payment_data->account_id = $request->input('account_id');
         $lims_payment_data->payment_reference = 'ppr-' . date("Ymd") . '-'. date("his");
         $lims_payment_data->amount = $allocated['allocated_amount'];
         $lims_payment_data->change = 0;
-        $lims_payment_data->paying_method = $request->input('type');
+        $lims_payment_data->paying_method = 'allocate';
         $lims_payment_data->payment_note =$request->input('comment');
         $lims_payment_data->save();
             }
@@ -513,7 +516,7 @@ class SaleController extends Controller
 
             }
         }
-        
+
         // If there's any remaining payment, return to the view with a flash message
     if ($allocationResult['remaining_payment'] > 0) {
         return redirect()->back()->with('message', 'Payment allocated but ' . $allocationResult['remaining_payment'] . ' remains unallocated.');
@@ -522,21 +525,21 @@ class SaleController extends Controller
     }
 
 
-    
+
 }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
 
     public function saleData(Request $request)
     {
@@ -910,7 +913,7 @@ public function compilyCreate()
                 }
                 $data['document'] = $documentName;
             }
-         
+
             if(isset($data['table_id'])) {
                 $latest_sale = Compliy::whereNotNull('table_id')->whereDate('created_at', date('Y-m-d'))->where('warehouse_id', $data['warehouse_id'])->select('queue')->orderBy('id', 'desc')->first();
                 if($latest_sale)
@@ -923,7 +926,7 @@ public function compilyCreate()
            //$lims_sale_data = Compliy::create($data);
         //   dd($lims_sale_data);
             //inserting data for custom fields
-            
+
             $newData = $data;
 if (is_array($newData['product_id'])) {
     // Handle the array, you might want to convert it to a string or extract a specific value
@@ -1128,7 +1131,7 @@ $lims_sale_data = Compliy::create($newData);
             //     }
             // }
 
-       
+
         /*}
         catch(Exception $e) {
             DB::rollBack();
@@ -1460,7 +1463,7 @@ $lims_sale_data = Compliy::create($newData);
                 // $lims_account_data = Account::where('is_default', true)->first();
                 $lims_payment_data->account_id = $data['account_id'];
                 $acoun = Account::find($data['account_id']);
-                if($acoun){ $acoun->total_balance += $data['paid_amount']; $acoun->save(); } 
+                if($acoun){ $acoun->total_balance += $data['paid_amount']; $acoun->save(); }
                 $lims_payment_data->sale_id = $lims_sale_data->id;
                 $data['payment_reference'] = 'spr-'.date("Ymd").'-'.date("his");
                 $lims_payment_data->payment_reference = $data['payment_reference'];
@@ -1756,7 +1759,7 @@ $lims_sale_data = Compliy::create($newData);
                 ['products.is_active', true],
                 ['product_warehouse.warehouse_id', $id]
             ]);
-        } 
+        }
         $lims_product_warehouse_data = $query->whereNull('product_warehouse.variant_id')
                                         ->whereNull('product_warehouse.product_batch_id')
                                         ->select('product_warehouse.*',  'products.is_embeded')
@@ -2036,7 +2039,7 @@ $lims_sale_data = Compliy::create($newData);
             $lims_coupon_list = Coupon::where('is_active',true)->get();
 
             $currency_list = Currency::where('is_active', true)->get();
-    
+
             return view('backend.sale.create_sale',compact('currency_list', 'lims_biller_list', 'lims_customer_list', 'lims_warehouse_list', 'lims_tax_list', 'lims_sale_data','lims_product_sale_data', 'lims_pos_setting_data', 'lims_brand_list', 'lims_category_list', 'lims_coupon_list', 'lims_product_list', 'product_number', 'lims_customer_group_all', 'lims_reward_point_setting_data'));
         }
         else
@@ -2147,21 +2150,21 @@ $lims_sale_data = Compliy::create($newData);
     public function limsProductSearch(Request $request)
     {
 
-        
+
         $todayDate = date('Y-m-d');
-        $product_code = explode("(", $request['data']); 
-        $product_batch_no = explode("!", $request['data']);   
+        $product_code = explode("(", $request['data']);
+        $product_batch_no = explode("!", $request['data']);
         $product_info = explode("?", $product_batch_no[1]); //    $product_info[0] got product_batch_no
         $separated_code = $product_info[0];
-        $customer_id = $product_info[1]; 
+        $customer_id = $product_info[1];
         $qty = $product_info[2];
         if (strpos($request['data'], '|')) {
-            $product_info = explode("|", $request['data']);    
-            $embeded_code = $product_code[0];    
-            $product_code[0] = substr($embeded_code, 0, 7);    
+            $product_info = explode("|", $request['data']);
+            $embeded_code = $product_code[0];
+            $product_code[0] = substr($embeded_code, 0, 7);
             $qty = substr($embeded_code, 7, 5) / 1000;
-        } else {    
-            $product_code[0] = rtrim($product_code[0], " ");    
+        } else {
+            $product_code[0] = rtrim($product_code[0], " ");
             $qty = $product_info[2];
 }
 // Retrieve batch record according to batch number
@@ -2195,7 +2198,7 @@ if ($product_batch) {
     }
 
         // Add batch number and expired date to the product array
-    
+
  $product_variant_id = null;
         $all_discount = DB::table('discount_plan_customers')
                         ->join('discount_plans', 'discount_plans.id', '=', 'discount_plan_customers.discount_plan_id')
@@ -2216,8 +2219,8 @@ if ($product_batch) {
         $product_list = explode(",", $discount->product_list);
         $days = explode(",", $discount->days);
 
-        if (($discount->applicable_for == 'All' || in_array($lims_product_data->id, $product_list)) && 
-            ($todayDate >= $discount->valid_from && $todayDate <= $discount->valid_till && 
+        if (($discount->applicable_for == 'All' || in_array($lims_product_data->id, $product_list)) &&
+            ($todayDate >= $discount->valid_from && $todayDate <= $discount->valid_till &&
             in_array(date('D'), $days) && $qty >= $discount->minimum_qty && $qty <= $discount->maximum_qty)) {
             if ($discount->type == 'flat') {
                 $product[] = $lims_product_data->price - $discount->value;
@@ -2283,9 +2286,9 @@ if ($product_batch) {
     $product[] = $lims_product_data->is_variant;
     $product[] = $qty;
     $product[] = $product_batch->batch_no;       // Batch number
-    $product[] = $product_batch->expired_date;  
+    $product[] = $product_batch->expired_date;
     $product[] = $product_batch->id;
-    
+
     return ($product);
 } else {
     // Handle case when the batch number does not exist
@@ -3189,6 +3192,7 @@ if ($product_batch) {
         $lims_payment_data->change = $data['paying_amount'] - $data['amount'];
         $lims_payment_data->paying_method = $paying_method;
         $lims_payment_data->payment_note = $data['payment_note'];
+        $lims_payment_data->ndate = $data['date'];
         $lims_payment_data->save();
         $lims_sale_data->save();
 
@@ -3317,7 +3321,9 @@ if ($product_batch) {
         $account_id = [];
 
         foreach ($lims_payment_list as $payment) {
-            $date[] = date(config('date_format'), strtotime($payment->created_at->toDateString())) . ' '. $payment->created_at->toTimeString();
+            // $date[] = date(config('date_format'), strtotime($payment->created_at->toDateString())) . ' '. $payment->created_at->toTimeString();
+            $date[] = $payment->ndate ? Carbon::parse($payment->ndate)->format('F/j/Y') : 'No Date Available';
+            // dd($date[]);
             $payment_reference[] = $payment->payment_reference;
             $paid_amount[] = $payment->amount;
             $change[] = $payment->change;
@@ -3352,6 +3358,7 @@ if ($product_batch) {
         $payments[] = $paying_amount;
         $payments[] = $account_name;
         $payments[] = $account_id;
+        // dd($payments);
 
         return $payments;
     }
@@ -3359,7 +3366,7 @@ if ($product_batch) {
     public function updatePayment(Request $request)
     {
         $data = $request->all();
-        //return $data;
+        // dd($data);
         $lims_payment_data = Payment::find($data['payment_id']);
         $lims_sale_data = Sale::find($lims_payment_data->sale_id);
         $lims_customer_data = Customer::find($lims_sale_data->customer_id);
@@ -3518,17 +3525,18 @@ if ($product_batch) {
         //updating payment data
         // $lims_sale_data = Sale::find($lims_payment_data->sale_id);
         $payment_datas = Payment::find($data['payment_id']);
-        
+
         $acouns = Account::find($payment_datas->account_id);
-        if($acouns){ $acouns->total_balance -= $data['edit_amount']; $acouns->save(); } 
+        if($acouns){ $acouns->total_balance -= $data['edit_amount']; $acouns->save(); }
 
         $acoun = Account::find($data['account_id']);
-        if($acoun){ $acoun->total_balance += $data['edit_amount']; $acoun->save(); } 
+        if($acoun){ $acoun->total_balance += $data['edit_amount']; $acoun->save(); }
 
         $lims_payment_data->account_id = $data['account_id'];
         $lims_payment_data->amount = $data['edit_amount'];
         $lims_payment_data->change = $data['edit_paying_amount'] - $data['edit_amount'];
         $lims_payment_data->payment_note = $data['edit_payment_note'];
+        $lims_payment_data->ndate = $data['ndate'];
         $lims_payment_data->save();
         $message = 'Payment updated successfully';
         //collecting male data
@@ -3705,8 +3713,8 @@ if ($product_batch) {
         $data['profit'] = $profit - $data['expense_amount'];
         return $data;
     }
-    
-    
+
+
     public function deleteByCompliy(Request $request)
     {
         $sale_id = $request['saleIdArray'];
@@ -3720,7 +3728,7 @@ if ($product_batch) {
             //     $message = 'Sale deleted successfully';
                  $lims_product_data = Product::find($lims_sale_data->product_id);
                 //adjust product quantity
-               
+
              $complementaryQty = $lims_sale_data->total_qty;
   $lims_product_data->increment('qty', $complementaryQty);
     // Delete the Complementary record
@@ -3728,28 +3736,28 @@ if ($product_batch) {
                                 ['product_id', $lims_sale_data->product_id],
                                 ['warehouse_id', $lims_sale_data->warehouse_id ],
                             ])->first();
-                            
-                            
-                            
+
+
+
 
     // Update the Product table
     $child_warehouse_data->increment('qty', $complementaryQty);
-            
+
             $lims_payment_data = Payment::where('sale_id', $id)->get();
-        
+
             if($lims_sale_data->coupon_id) {
                 $lims_coupon_data = Coupon::find($lims_sale_data->coupon_id);
                 $lims_coupon_data->used -= 1;
                 $lims_coupon_data->save();
             }
-            
+
             $lims_sale_data->delete();
             $this->fileDelete('documents/sale/', $lims_sale_data->document);
 
         }
         return 'Sale deleted successfully!';
     }
-    
+
 
     public function deleteBySelection(Request $request)
     {
@@ -4016,12 +4024,12 @@ if ($product_batch) {
 
         return Redirect::to($url)->with('not_permitted', $message);
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     public function destroy($id)
     {
         $url = url()->previous();

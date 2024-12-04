@@ -191,7 +191,7 @@
                         <input type="hidden" name="balance">
                          <div class="col-md-6">
                             <label>Date *</label>
-                            <input type="date" name="date" class="form-control"  step="any" required>
+                            <input type="date" name="date" class="form-control" step="any" required>
                         </div>
                         <div class="col-md-6">
                             <label>{{trans('file.Recieved Amount')}} *</label>
@@ -263,7 +263,7 @@
                     <div class="row">
                          <div class="col-md-6">
                             <label>Date *</label>
-                            <input type="date" name="date" class="form-control"  step="any" required>
+                            <input type="date" name="date" class="form-control" id="set_date" step="any" required>
                         </div>
                         <div class="col-md-6">
                             <label>{{trans('file.Recieved Amount')}} *</label>
@@ -439,7 +439,7 @@
             $(".payment-list tbody").remove();
             var newBody = $("<tbody>");
             payment_date  = data[0];
-            
+
             payment_reference = data[1];
             paid_amount = data[2];
             paying_method = data[3];
@@ -450,7 +450,7 @@
             paying_amount = data[8];
             account_name = data[9];
             account_id = data[10];
-     
+
             $.each(payment_date, function(index){
                 var newRow = $("<tr>");
                 var cols = '';
@@ -501,7 +501,11 @@
                     $('input[name="edit_cheque_no"]').val(cheque_no[index]);
                     $('input[name="edit_cheque_no"]').attr('required', true);
                 }
-                $('input[name="edit_date"]').val(payment_date[index]);
+                let rawDate = payment_date[index];
+                let dateObj = new Date(rawDate);
+                let formattedDate = dateObj.getFullYear() + '-' + String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
+                $("#set_date").val(formattedDate);
+                // $('input[name="date"]').val(payment_date[index]);
                 $("#payment_reference").html(payment_reference[index]);
                 $('input[name="edit_amount"]').val(paid_amount[index]);
                 $('input[name="edit_paying_amount"]').val(paying_amount[index]);

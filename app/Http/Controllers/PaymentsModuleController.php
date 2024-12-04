@@ -4,13 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine_Activity;
 use App\Models\PaymentsModule;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class PaymentsModuleController extends Controller
 {
     public function index()
     {
-        $lims_brand_all = PaymentsModule::where('is_active', true)->get();
+        // $lims_brand_all = Payment::get();
+        $lims_brand_all = Payment::leftJoin('sales', 'payments.sale_id', '=', 'sales.id')
+        ->leftJoin('purchases', 'payments.purchase_id', '=', 'purchases.id')
+        ->select(
+            'payments.*',
+            'sales.reference_no as s_reference_no',
+            'purchases.reference_no as p_reference_no',
+        )
+        ->get();
+        // dd($lims_brand_all->toArray());
         return view('backend.payment_module.create', compact('lims_brand_all'));
     }
 

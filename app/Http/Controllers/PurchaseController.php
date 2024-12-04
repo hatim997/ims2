@@ -29,6 +29,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\TenantInfo;
+use Carbon\Carbon;
 
 class PurchaseController extends Controller
 {
@@ -166,7 +167,7 @@ class PurchaseController extends Controller
                             ['purchases.user_id', Auth::id()],
                             ['purchases.' . $field_name, 'LIKE', "%{$search}%"]
                         ]);
-                }      
+                }
                 $purchases = $q->select('purchases.*')->get();
                 $totalFiltered = $q->count();
             }
@@ -969,7 +970,7 @@ class PurchaseController extends Controller
                                                     ->first();
                         if($lims_product_warehouse_data)
                             $price = $lims_product_warehouse_data->price;
-                            
+
                         $lims_product_warehouse_data = Product_Warehouse::where([
                             ['product_id', $pro_id],
                             ['product_batch_id', $product_purchase['product_batch_id'] ],
@@ -1060,7 +1061,7 @@ class PurchaseController extends Controller
             $lims_purchase_data->payment_status = 1;
         elseif ($balance == 0)
             $lims_purchase_data->payment_status = 2;
-              $lims_purchase_data->date = $data['date'];
+            //   $lims_purchase_data->date = $data['date'];
         $lims_purchase_data->save();
 
         if($data['paid_by_id'] == 1)
@@ -1075,13 +1076,14 @@ class PurchaseController extends Controller
             $acoun = Account::find($data['account_id']);
 
             if($acoun){
-                $acoun->total_balance -= $data['amount'];                
-                $acoun->save();            
-          } 
-            
+                $acoun->total_balance -= $data['amount'];
+                $acoun->save();
+          }
+
 
         $lims_payment_data = new Payment();
         $lims_payment_data->user_id = Auth::id();
+        $lims_payment_data->ndate = $data['date'];
         $lims_payment_data->purchase_id = $lims_purchase_data->id;
         $lims_payment_data->account_id = $data['account_id'];
         $lims_payment_data->payment_reference = 'ppr-' . date("Ymd") . '-'. date("his");
@@ -1130,14 +1132,13 @@ class PurchaseController extends Controller
         $paying_amount = [];
         $account_name = [];
         $account_id = [];
-        
+
         foreach ($lims_payment_list as $payment) {
-                      $lims_payment_listt = Purchase::where('id', $payment->purchase_id)->get();
-          foreach ($lims_payment_listt as $paymentt) {
-          $datee = $paymentt->date;
-           $date[] =$datee;
-          }
-       
+
+          $datee = $payment->ndate;
+            $date[] = Carbon::parse($datee)->format('F j, Y');
+
+
             //  $date[] = date(config('date_format'), strtotime($payment->created_at->toDateString())) . ' '. $payment->created_at->toTimeString();
             $payment_reference[] = $payment->payment_reference;
             $paid_amount[] = $payment->amount;
@@ -1163,8 +1164,8 @@ class PurchaseController extends Controller
                 $account_id[] = 0;
             }
         }
-      
-        
+
+
         $payments[] = $date;
         $payments[] = $payment_reference;
         $payments[] = $paid_amount;
@@ -1176,8 +1177,8 @@ class PurchaseController extends Controller
         $payments[] = $paying_amount;
         $payments[] = $account_name;
         $payments[] = $account_id;
-       
 
+// dd($payments);
         return $payments;
     }
 
@@ -1187,7 +1188,7 @@ class PurchaseController extends Controller
         $data = $request->all();
         $lims_payment_data = Payment::find($data['payment_id']);
         $lims_purchase_data = Purchase::find($lims_payment_data->purchase_id);
-        
+
         //updating purchase table
         $amount_dif = $lims_payment_data->amount - $data['edit_amount'];
         $lims_purchase_data->paid_amount = $lims_purchase_data->paid_amount - $amount_dif;
@@ -1196,17 +1197,17 @@ class PurchaseController extends Controller
         if($balance > 0 || $balance < 0)
         {
             $lims_purchase_data->payment_status = 1;
-            
+
         }
         elseif ($balance == 0)
         {
             $lims_purchase_data->payment_status = 2;
-             
+
         }
         $lims_purchase_data->save();
 
         //updating payment data
-    
+
         $lims_payment_data->account_id = $data['account_id'];
         $lims_payment_data->amount = $data['edit_amount'];
         $lims_payment_data->change = $data['edit_paying_amount'] - $data['edit_amount'];
@@ -1262,8 +1263,8 @@ class PurchaseController extends Controller
                 PaymentWithCheque::create($data);
             }
         }
-        
-        
+
+
         $lims_payment_data->save();
         return redirect('purchases')->with('message', 'Payment updated successfully');
     }
