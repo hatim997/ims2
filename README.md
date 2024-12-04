@@ -81,6 +81,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 <!-- ALTER TABLE `payments_modules` ADD `receive_date` TIMESTAMP NULL DEFAULT NULL AFTER `amount`; -->
 
-ALTER TABLE `allocates` ADD `ndate` TIMESTAMP NULL AFTER `payment_note`;
+<!-- ALTER TABLE `allocates` ADD `ndate` TIMESTAMP NULL AFTER `payment_note`; -->
+<!-- ALTER TABLE `payments` ADD `ndate` TIMESTAMP NULL AFTER `payment_note`; -->
 
 
