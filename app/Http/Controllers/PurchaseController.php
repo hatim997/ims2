@@ -1419,7 +1419,7 @@ class PurchaseController extends Controller
                 $lims_product_data->qty -= $recieved_qty;
                 $lims_product_warehouse_data->qty -= $recieved_qty;
 
-                $lims_product_warehouse_data->save();
+                $lims_product_warehouse_data->delete();
                 $lims_product_data->save();
                 $product_purchase_data->delete();
             }
