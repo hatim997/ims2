@@ -118,7 +118,7 @@
 
     $('#report-table').DataTable( {
         "order": [],
-        pageLength: all,
+        "pageLength": -1,
         'language': {
             'lengthMenu': '_MENU_ {{trans("file.records per page")}}',
              "info":      '<small>{{trans("file.Showing")}} _START_ - _END_ (_TOTAL_)</small>',
