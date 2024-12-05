@@ -1330,8 +1330,8 @@ class PurchaseController extends Controller
                         ['warehouse_id', $lims_purchase_data->warehouse_id]
                     ])->first();
 
-                    $lims_product_batch_data->qty -= $recieved_qty;
-                    $lims_product_batch_data->save();
+                    // $lims_product_batch_data->qty -= $recieved_qty;
+                    $lims_product_batch_data->delete();
                 }
                 else {
                     $lims_product_warehouse_data = Product_Warehouse::FindProductWithoutVariant($product_purchase_data->product_id, $lims_purchase_data->warehouse_id)
