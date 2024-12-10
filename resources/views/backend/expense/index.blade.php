@@ -159,7 +159,6 @@
     </div>
 </div>
 
-
 @endsection
 
 @push('scripts')
@@ -294,7 +293,48 @@
                     $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
                     datatable_sum(dt, false);
                 },
-                footer:true
+                footer:true,
+                customize: function (doc) {
+            // Add logo
+            doc.content.splice(0, 0, {        
+                image: logoBase64,
+            width: 100, // Adjust width as needed
+            alignment: 'center'              
+            
+            });
+
+            // Add OVATION HEALTH CARE title
+            doc.content.splice(1, 0, {
+                text: '',
+                style: 'header',
+                alignment: 'center',
+                margin: [0, 10, 0, 10] // Adjust margins as needed
+            });
+
+            // Add custom report name
+            doc.content.splice(2, 0, {
+                text: 'Expend Reprot',
+                style: 'subheader',
+                alignment: 'center',
+                margin: [0, 0, 0, 20] // Adjust margins as needed
+            });
+
+            // Define custom styles
+            doc.styles = {
+                ...doc.styles, // Preserve existing styles
+                header: {
+                    fontSize: 16,
+                    bold: true,
+                    color: 'green' // Adjust color as needed
+                },
+                subheader: {
+                    fontSize: 12,
+                    bold: false,
+                    color: 'black'
+                }
+            };
+        }
+
             },
             {
                 extend: 'excel',
