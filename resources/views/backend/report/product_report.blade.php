@@ -193,9 +193,10 @@
         buttons: [
             {
                 extend: 'pdf',
+                orientation: 'landscape',
                 text: '<i title="export to pdf" class="fa fa-file-pdf-o"></i>',
                 exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
+                    columns: ':visible',
                     rows: ':visible'
                 },
                 action: function(e, dt, button, config) {
