@@ -1098,6 +1098,11 @@
     </div>
     <!-- end supplier modal -->
 </div>
+
+
+@php
+ $logoUrl = asset('public/logo/20230927110325.png');
+@endphp
 @if(!config('database.connections.saleprosaas_landlord'))
     <script type="text/javascript" src="<?php echo asset('vendor/jquery/jquery.min.js') ?>"></script>
     <script type="text/javascript" src="<?php echo asset('vendor/jquery/jquery-ui.min.js') ?>"></script>
@@ -1240,6 +1245,35 @@
                 src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap.min.js"></script>
     @endif
 @endif
+
+
+
+<script type="text/javascript">
+var logoUrl = @json($logoUrl);
+
+    // Function to convert an image URL to a Base64 string
+    function toBase64(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                callback(reader.result);
+            };
+            reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', url);
+        xhr.responseType = 'blob';
+        xhr.send();
+    }
+
+    var logoBase64 = '';
+    toBase64(logoUrl, function (base64Image) {
+        logoBase64 = base64Image;
+
+        console.log(logoBase64);
+    });
+</script>
+
 @stack('scripts')
 <script>
     if ('serviceWorker' in navigator) {

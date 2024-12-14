@@ -166,7 +166,8 @@ class SettingController extends Controller
         $general_setting->currency = $data['currency'];
         $general_setting->developed_by = $data['developed_by'];
         $logo = $request->site_logo;
-        $general_setting->meta_title = $data['meta_title'];
+        // $general_setting->meta_title = $data['meta_title'];
+        $general_setting->meta_title = "fsdfsdfsdf";
         $general_setting->meta_description = $data['meta_description'];
         $general_setting->og_title = $data['og_title'];
         $general_setting->og_description = $data['og_description'];
