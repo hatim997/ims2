@@ -18,11 +18,11 @@
                 <i class="dripicons-list"></i><span>Add Payments</span><span></span></a>
         </li>
 
-      
+
   <li><a href="#docter" aria-expanded="false" data-toggle="collapse"> <i
                     class="dripicons-list"></i><span>Doctor's Activity</span><span></a>
             <ul id="docter" class="collapse list-unstyled ">
-               
+
                     <li id=""><a href="{{url("/docter")}}">Doctor's Profile </a></li>
                     <li id=""><a href="{{url("/medicine_activity")}}">Medicine Activity</a></li>
   </ul>
@@ -105,7 +105,7 @@
                     <li id="sale-create-menu"><a href="{{route('sales.create')}}">{{trans('file.Add Sale')}}</a></li>
                     <li id="sale-import-menu"><a
                             href="{{url('sales/sale_by_csv')}}">{{trans('file.Import Sale By CSV')}}</a></li>
-                        
+
                 @endif
 
                 @if($gift_card_permission_active)
@@ -491,6 +491,11 @@ $legder_report_active = $role_has_permissions_list->where('name', 'ledger-report
                         <a id="customer-group-report-link" href="">{{trans('file.Customer Group Report')}}</a>
                     </li>
                 @endif
+                @if($customer_report_active)
+                    <li >
+                        <a href="{{ route('report.customer_balance') }}"></a>
+                    </li>
+                @endif
                 @if($due_report_active)
                     <li id="due-report-menu">
                         {!! Form::open(['route' => 'report.customerDueByDate', 'method' => 'post', 'id' => 'customer-due-report-form']) !!}
@@ -551,8 +556,8 @@ $legder_report_active = $role_has_permissions_list->where('name', 'ledger-report
                         <input type="hidden" name="end_date" value="{{date('Y-m-d')}}"/>
                         <input type="hidden" name="OB" value="0"/>
                         <a id="legder-report-link" href="">{{trans('file.legder Report')}}</a>
-                        {!! Form::close() !!} 
-                          </li>                   
+                        {!! Form::close() !!}
+                          </li>
                 @endif
                       @if($user_report_active)
                  <li id="legder-report-menu">
@@ -561,17 +566,17 @@ $legder_report_active = $role_has_permissions_list->where('name', 'ledger-report
                        <input type="hidden" name="end_date" value="{{date('Y-m-d')}}"/>
                        <input type="hidden" name="OB" value="0"/>
                        <a id="Manuf-report-link" href="">Manufacture Legder</a>
-                       {!! Form::close() !!} 
-                         </li>                     
+                       {!! Form::close() !!}
+                         </li>
                 @endif
             </ul>
         </li>
     @endif
-    
-    
-    
-    
-    
+
+
+
+
+
     @if(!config('database.connections.saleprosaas_landlord'))
         {{--        <li><a href="#addons" aria-expanded="false" data-toggle="collapse"> <i--}}
         {{--                    class="dripicons-flag"></i><span>{{trans('file.Addons')}}</span></a>--}}

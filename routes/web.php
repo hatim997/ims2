@@ -174,7 +174,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('role/permission/{id}', 'permission')->name('role.permission');
         Route::post('role/set_permission', 'setPermission')->name('role.setPermission');
     });
-    
+
 
 
     Route::resource('unit', UnitController::class);
@@ -292,7 +292,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::get('sales/getpayment/{id}', 'getPayment')->name('sale.get-payment');
         Route::get('/allocate-payment', 'getAllocates')->name('allocate.payment.view');
         Route::post('/allocate-payment', 'allocate')->name('allocate.payment');
-     
+
         Route::post('sales/updatepayment', 'updatePayment')->name('sale.update-payment');
         Route::post('sales/deletepayment', 'deletePayment')->name('sale.delete-payment');
         Route::get('sales/{id}/create', 'createSale')->name('sale.draft');
@@ -457,6 +457,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
             Route::post('customer-quotation-data', 'customerQuotationData');
             Route::post('customer-return-data', 'customerReturnData');
             Route::post('customer-group', 'customerGroupReport')->name('report.customer_group');
+            Route::get('customer-balance', 'customerBalanceReport')->name('report.customer_balance');
             Route::post('customer-group-sale-data', 'customerGroupSaleData');
             Route::post('customer-group-payment-data', 'customerGroupPaymentData');
             Route::post('customer-group-quotation-data', 'customerGroupQuotationData');
@@ -523,7 +524,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
          Route::post('expenses/summonths', 'summmmonth');
            Route::get('expenses/summonth', 'summonth')->name('expenses.summary');
     });
-    
+
     Route::resource('expenses', ExpenseController::class);
 
 
@@ -541,7 +542,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::post('coupons/deletebyselection', 'deleteBySelection');
     });
     Route::resource('coupons', CouponController::class);
-    
+
 
     //accounting routes
     Route::controller(AccountsController::class)->group(function () {

@@ -3521,9 +3521,33 @@ public function ManufReportByDate(Request $request)
             $ending_date = date("Y-m-d");
         }
         $lims_customer_group_list = CustomerGroup::where('is_active', true)->get();
+        // dd($lims_customer_group_list);
         return view('backend.report.customer_group_report', compact('starting_date', 'ending_date', 'customer_group_id', 'lims_customer_group_list'));
     }
 
+
+
+
+    public function customerBalanceReport()
+    {
+        // dd('okok');
+        // $customer_group_id = $request->input('customer_group_id');
+        // if ($request->input('starting_date')) {
+        //     $starting_date = $request->input('starting_date');
+        //     $ending_date = $request->input('ending_date');
+        // } else {
+        //     $starting_date = date("Y-m-d", strtotime(date('Y-m-d', strtotime('-1 year', strtotime(date('Y-m-d'))))));
+        //     $ending_date = date("Y-m-d");
+        // }
+        $starting_date = null;
+        $ending_date = null;
+        $customer_group_id = null;
+
+
+        $lims_customer_group_list = CustomerGroup::where('is_active', true)->get();
+        // dd($lims_customer_group_list->toArray());
+        return view('backend.report.customer_balance_report', compact('starting_date', 'ending_date', 'customer_group_id', 'lims_customer_group_list'));
+    }
     public function customerGroupSaleData(Request $request)
     {
         $columns = array(
