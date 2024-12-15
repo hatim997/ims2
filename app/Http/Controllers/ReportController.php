@@ -3528,25 +3528,57 @@ public function ManufReportByDate(Request $request)
 
 
 
-    public function customerBalanceReport()
+    public function customerBalanceReport(Request $request)
     {
         // dd('okok');
         // $customer_group_id = $request->input('customer_group_id');
-        // if ($request->input('starting_date')) {
-        //     $starting_date = $request->input('starting_date');
-        //     $ending_date = $request->input('ending_date');
-        // } else {
-        //     $starting_date = date("Y-m-d", strtotime(date('Y-m-d', strtotime('-1 year', strtotime(date('Y-m-d'))))));
-        //     $ending_date = date("Y-m-d");
-        // }
-        $starting_date = null;
-        $ending_date = null;
+        $data = $request->all();
+    //    dd ($data);
+        if (!$data['start_date']) {
+            // $starting_date = $data->input('start_date');
+            // $ending_date = $data->input('end_date');
+            $data['start_date'] = date("Y-m-d", strtotime(date('Y-m-d', strtotime('-1 year', strtotime(date('Y-m-d'))))));
+            $data['end_date'] = date("Y-m-d");
+        } 
+       
         $customer_group_id = null;
 
-
+       $start_date  = $data['start_date'];
+     $end_date = $data['end_date'];
         $lims_customer_group_list = CustomerGroup::where('is_active', true)->get();
         // dd($lims_customer_group_list->toArray());
-        return view('backend.report.customer_balance_report', compact('starting_date', 'ending_date', 'customer_group_id', 'lims_customer_group_list'));
+        $data = $request->all();
+        $credit_list = new Collection;
+        $debit_list = new Collection;
+        
+
+       
+            $credit_list = Payment::whereNotNull('sale_id')                         
+                            ->where('ndate', '>=' , $data['start_date'])
+                            ->where('ndate', '<=' , $data['end_date'])
+                            ->select('payment_reference as reference_no', 'sale_id', 'amount', 'ndate as created_at')
+                            ->get();
+
+           
+        // dd($credit_list);
+
+    
+            $debit_list = Payment::whereNotNull('purchase_id')                            
+                            ->where('ndate', '>=' , $data['start_date'])
+                            ->where('ndate', '<=' , $data['end_date'])
+                            ->select('payment_reference as reference_no', 'purchase_id', 'amount', 'ndate as created_at')
+                            ->get();
+     
+        // dd($credit_list);
+        $all_transaction_list = new Collection;
+        $all_transaction_list = $credit_list ->concat($debit_list)                                
+        ->sortBy('created_at');
+        // dd($all_transaction_list->toArray());
+        $balance = 0;
+
+
+
+        return view('backend.report.customer_balance_report', compact('start_date', 'end_date', 'balance', 'all_transaction_list'));
     }
     public function customerGroupSaleData(Request $request)
     {

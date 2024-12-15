@@ -1266,27 +1266,27 @@ var logoUrl = @json($logoUrl);
         xhr.send();
     }
 
-    var logoBase64 = '';
-    toBase64(logoUrl, function (base64Image) {
-        logoBase64 = base64Image;
+    // var logoBase64 = '';
+    // toBase64(logoUrl, function (base64Image) {
+    //     logoBase64 = base64Image;
 
-        console.log(logoBase64);
-    });
+    //     console.log(logoBase64);
+    // });
 </script>
 
 @stack('scripts')
 <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-            navigator.serviceWorker.register('/salepro/service-worker.js').then(function (registration) {
-                // Registration was successful
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            }, function (err) {
-                // registration failed :(
-                console.log('ServiceWorker registration failed: ', err);
-            });
-        });
-    }
+    // if ('serviceWorker' in navigator) {
+    //     window.addEventListener('load', function () {
+    //         navigator.serviceWorker.register('/salepro/service-worker.js').then(function (registration) {
+    //             // Registration was successful
+    //             console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    //         }, function (err) {
+    //             // registration failed :(
+    //             console.log('ServiceWorker registration failed: ', err);
+    //         });
+    //     });
+    // }
 </script>
 <script type="text/javascript">
     var theme = <?php echo json_encode($theme); ?>;
@@ -1429,6 +1429,10 @@ var logoUrl = @json($logoUrl);
     $("a#due-report-link").click(function (e) {
         e.preventDefault();
         $("#customer-due-report-form").submit();
+    });
+     $("a#balancecus-report-link").click(function (e) {
+        e.preventDefault();
+        $("#customer-due-report-for").submit();
     });
 
     $("a#supplier-due-report-link").click(function (e) {

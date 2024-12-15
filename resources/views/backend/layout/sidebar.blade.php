@@ -492,8 +492,11 @@ $legder_report_active = $role_has_permissions_list->where('name', 'ledger-report
                     </li>
                 @endif
                 @if($customer_report_active)
-                    <li >
-                        <a href="{{ route('report.customer_balance') }}"></a>
+                    <li >   {!! Form::open(['route' => 'report.customer_balance', 'method' => 'post', 'id' => 'customer-due-report-for']) !!}
+                        <input type="hidden" name="start_date" value="{{date('Y-m-d', strtotime('-1 year'))}}"/>
+                        <input type="hidden" name="end_date" value="{{date('Y-m-d')}}"/>
+                        <a  id ="balancecus-report-link" href="">Customer balance Report</a>
+                        {!! Form::close() !!}
                     </li>
                 @endif
                 @if($due_report_active)

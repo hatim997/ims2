@@ -457,7 +457,7 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
             Route::post('customer-quotation-data', 'customerQuotationData');
             Route::post('customer-return-data', 'customerReturnData');
             Route::post('customer-group', 'customerGroupReport')->name('report.customer_group');
-            Route::get('customer-balance', 'customerBalanceReport')->name('report.customer_balance');
+            Route::post('customer-balance', 'customerBalanceReport')->name('report.customer_balance');
             Route::post('customer-group-sale-data', 'customerGroupSaleData');
             Route::post('customer-group-payment-data', 'customerGroupPaymentData');
             Route::post('customer-group-quotation-data', 'customerGroupQuotationData');
