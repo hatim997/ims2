@@ -491,14 +491,14 @@ $legder_report_active = $role_has_permissions_list->where('name', 'ledger-report
                         <a id="customer-group-report-link" href="">{{trans('file.Customer Group Report')}}</a>
                     </li>
                 @endif
-                @if($customer_report_active)
+                {{-- @if($customer_report_active)
                     <li >   {!! Form::open(['route' => 'report.customer_balance', 'method' => 'post', 'id' => 'customer-due-report-for']) !!}
                         <input type="hidden" name="start_date" value="{{date('Y-m-d', strtotime('-1 year'))}}"/>
                         <input type="hidden" name="end_date" value="{{date('Y-m-d')}}"/>
                         <a  id ="balancecus-report-link" href="">Customer balance Report</a>
                         {!! Form::close() !!}
                     </li>
-                @endif
+                @endif --}}
                 @if($due_report_active)
                     <li id="due-report-menu">
                         {!! Form::open(['route' => 'report.customerDueByDate', 'method' => 'post', 'id' => 'customer-due-report-form']) !!}

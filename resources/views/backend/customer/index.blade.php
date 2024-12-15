@@ -30,6 +30,7 @@
                     <th>{{trans('file.Reward Points')}}</th>
                     <th>{{trans('file.Deposited Balance')}}</th>
                     <th>{{trans('file.Total Due')}}</th>
+                    <th>{{trans('file.Balance')}}</th>
                     @foreach($custom_fields as $fieldName)
                     <th>{{$fieldName}}</th>
                     @endforeach
@@ -83,6 +84,8 @@
                     @php $field_name = str_replace(" ", "_", strtolower($fieldName)); @endphp
                     <td>{{$customer->$field_name}}</td>
                     @endforeach
+                    {{-- {{ dd(number_format($saleData->grand_total - $returned_amount - $saleData->paid_amount, 2)) }} --}}
+                    <td>{{ number_format(($saleData->grand_total - $returned_amount - $saleData->paid_amount) - ($customer->deposit - $customer->expense), 2) }}</td>
                     <td>
                         <div class="btn-group">
                             <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{trans('file.action')}}
