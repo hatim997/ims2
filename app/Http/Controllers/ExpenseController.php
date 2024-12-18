@@ -180,7 +180,7 @@ class ExpenseController extends Controller
                 if (in_array("expenses-edit", $request['all_permission'])) {
                     $nestedData['options'] .= '<li>
                         <button type="button" data-id="' . $expense->id . '" class="create-invoice btn btn-link">
-                            <i class="dripicons-download"></i>' . trans('file.generateinvoice') . '
+                            <i class="dripicons-download"></i>' . trans('Generate Invoice') . '
                         </button>
                     </li>';
                 }
