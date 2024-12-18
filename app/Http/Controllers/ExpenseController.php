@@ -46,10 +46,10 @@ class ExpenseController extends Controller
         else
             return redirect()->back()->with('not_permitted', 'Sorry! You are not allowed to access this module');
     }
-    
+
     public function summonth()
 {
-    
+
       return view('backend.expense.summary');
 }
   public function summmmonth(Request $request)
@@ -63,7 +63,7 @@ class ExpenseController extends Controller
         ->whereBetween('created_at', [$startingDate, $endingDate])
         ->groupBy(DB::raw('DATE(created_at)'))
         ->get();
-        
+
     if ($warehouse_id) {
         $query->where('warehouse_id', $warehouse_id);
     }
@@ -78,8 +78,8 @@ class ExpenseController extends Controller
     // return response()->json([
     //     'data' => $data
     // ]);
-    
-     
+
+
 
       return response()->json([
             'data' => $query
@@ -89,6 +89,7 @@ class ExpenseController extends Controller
 
     public function expenseData(Request $request)
     {
+        // dd($request);
         $columns = array(
             1 => 'created_at',
             2 => 'reference_no',
@@ -176,6 +177,13 @@ class ExpenseController extends Controller
                         <button type="button" data-id="'.$expense->id.'" class="open-Editexpense_categoryDialog btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i>'.trans('file.edit').'</button>
                         </li>';
                 }
+                if (in_array("expenses-edit", $request['all_permission'])) {
+                    $nestedData['options'] .= '<li>
+                        <button type="button" data-id="' . $expense->id . '" class="create-invoice btn btn-link">
+                            <i class="dripicons-download"></i>' . trans('file.generateinvoice') . '
+                        </button>
+                    </li>';
+                }
                 if(in_array("expenses-delete", $request['all_permission']))
                     $nestedData['options'] .= \Form::open(["route" => ["expenses.destroy", $expense->id], "method" => "DELETE"] ).'
                             <li>
@@ -193,6 +201,21 @@ class ExpenseController extends Controller
             "data"            => $data
         );
         echo json_encode($json_data);
+    }
+
+
+    public function createInvoice($id)
+    {
+        $expense = Expense::with('expenseCategory')->find($id); // Fetch expense by ID
+
+        // dd($expense);
+
+        if (!$expense) {
+            return response()->json(['error' => 'Expense not found'], 404);
+        }
+
+        // Return the invoice view with the expense data
+        return view('backend.invoice.invoice', compact('expense'));
     }
 
     public function create()

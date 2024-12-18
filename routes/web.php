@@ -515,15 +515,19 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
         Route::post('expense_categories/import', 'import')->name('expense_category.import');
         Route::post('expense_categories/deletebyselection', 'deleteBySelection');
     });
+
     Route::resource('expense_categories', ExpenseCategoryController::class);
+
+
 
 
     Route::controller(ExpenseController::class)->group(function () {
         Route::post('expenses/expense-data', 'expenseData')->name('expenses.data');
         Route::post('expenses/deletebyselection', 'deleteBySelection');
-         Route::post('expenses/summonths', 'summmmonth');
-           Route::get('expenses/summonth', 'summonth')->name('expenses.summary');
+        Route::post('expenses/summonths', 'summmmonth');
+        Route::get('expenses/summonth', 'summonth')->name('expenses.summary');
     });
+    Route::get('expenses/{id}/create-invoice', [ExpenseController::class, 'createInvoice']);
 
     Route::resource('expenses', ExpenseController::class);
 
