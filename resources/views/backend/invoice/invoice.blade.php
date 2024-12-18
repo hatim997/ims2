@@ -69,15 +69,15 @@
         </table>
 
         <!-- Additional Section -->
-        <div class="row mt-4">
-            <div class="col text-center">
-                <p class="fw-bold">AUTHORIZED _____________________</p>
+        <div class="row" style="margin-top: 4.5rem !important;">
+            <div class="col">
+                <p class="fw-bold">AUTHORIZED <span class="underline">______________</span></p>
             </div>
-            <div class="col text-center">
-                <p class="fw-bold">ACCOUNTANT _____________________</p>
+            <div class="col">
+                <p class="fw-bold">ACCOUNTANT <span class="underline">______________</span></p>
             </div>
-            <div class="col text-center">
-                <p class="fw-bold">RECIEVER SIGNATURE ______________________</p>
+            <div class="col">
+                <p class="fw-bold">RECIEVER SIGNATURE <span class="underline">_______________</span></p>
             </div>
         </div>
     </div>
