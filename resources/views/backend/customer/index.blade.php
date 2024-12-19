@@ -340,153 +340,169 @@
         $('#view-deposit').modal('hide');
     });
 
-    var table = $('#customer-table').DataTable( {
-        "order": [],
-        'language': {
-            'lengthMenu': '_MENU_ {{trans("file.records per page")}}',
-             "info":      '<small>{{trans("file.Showing")}} _START_ - _END_ (_TOTAL_)</small>',
-            "search":  '{{trans("file.Search")}}',
-            'paginate': {
-                    'previous': '<i class="dripicons-chevron-left"></i>',
-                    'next': '<i class="dripicons-chevron-right"></i>'
+    var table = $('#customer-table').DataTable({
+    "order": [],
+    'language': {
+        'lengthMenu': '_MENU_ {{trans("file.records per page")}}',
+        "info": '<small>{{trans("file.Showing")}} _START_ - _END_ (_TOTAL_)</small>',
+        "search": '{{trans("file.Search")}}',
+        'paginate': {
+            'previous': '<i class="dripicons-chevron-left"></i>',
+            'next': '<i class="dripicons-chevron-right"></i>'
+        }
+    },
+    'columnDefs': [
+        {
+            "orderable": false,
+            'targets': [0, 7]
+        },
+        {
+            'render': function(data, type, row, meta) {
+                if (type === 'display') {
+                    data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
+                }
+                return data;
+            },
+            'checkboxes': {
+                'selectRow': true,
+                'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
+            },
+            'targets': [0]
+        }
+    ],
+    'select': { style: 'multi', selector: 'td:first-child' },
+    'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
+    dom: '<"row"lfB>rtip',
+    buttons: [
+        {
+            extend: 'pdf',
+            text: '<i title="export to pdf" class="fa fa-file-pdf-o"></i>',
+            exportOptions: {
+                columns: ':visible:Not(.not-exported)',
+                rows: ':visible'
+            },
+            customize: function(doc) {
+                doc.content.splice(0, 0, {
+                    image: logoBase64,
+                    width: 100,
+                    alignment: 'center'
+                });
+                doc.content.splice(1, 0, {
+                    text: '',
+                    style: 'header',
+                    alignment: 'center',
+                    margin: [0, 10, 0, 10]
+                });
+                doc.content.splice(2, 0, {
+                    text: 'Medical Activity Report',
+                    style: 'subheader',
+                    alignment: 'center',
+                    margin: [0, 0, 0, 20]
+                });
+                doc.styles = {
+                    ...doc.styles,
+                    header: {
+                        fontSize: 16,
+                        bold: true,
+                        color: 'green'
+                    },
+                    subheader: {
+                        fontSize: 12,
+                        bold: false,
+                        color: 'black'
+                    }
+                };
             }
         },
-        'columnDefs': [
-            {
-                "orderable": false,
-                'targets': [0, 7]
+        {
+            extend: 'excel',
+            text: '<i title="export to excel" class="dripicons-document-new"></i>',
+            exportOptions: {
+                columns: ':visible:Not(.not-exported)',
+                rows: ':visible'
             },
-            {
-                'render': function(data, type, row, meta){
-                    if(type === 'display'){
-                        data = '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>';
-                    }
-
-                   return data;
-                },
-                'checkboxes': {
-                   'selectRow': true,
-                   'selectAllRender': '<div class="checkbox"><input type="checkbox" class="dt-checkboxes"><label></label></div>'
-                },
-                'targets': [0]
-            }
-        ],
-        'select': { style: 'multi',  selector: 'td:first-child'},
-        'lengthMenu': [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        dom: '<"row"lfB>rtip',
-        buttons: [
-            {
-                extend: 'pdf',
-                text: '<i title="export to pdf" class="fa fa-file-pdf-o"></i>',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-
-                           customize: function (doc) {
-            // Add logo
-            doc.content.splice(0, 0, {
-                image: logoBase64,
-            width: 100, // Adjust width as needed
-            alignment: 'center'
-
-            });
-
-            // Add OVATION HEALTH CARE title
-            doc.content.splice(1, 0, {
-                text: '',
-                style: 'header',
-                alignment: 'center',
-                margin: [0, 10, 0, 10] // Adjust margins as needed
-            });
-
-            // Add custom report name
-            doc.content.splice(2, 0, {
-                text: 'Medical Activity Reprot',
-                style: 'subheader',
-                alignment: 'center',
-                margin: [0, 0, 0, 20] // Adjust margins as needed
-            });
-
-            // Define custom styles
-            doc.styles = {
-                ...doc.styles, // Preserve existing styles
-                header: {
-                    fontSize: 16,
-                    bold: true,
-                    color: 'green' // Adjust color as needed
-                },
-                subheader: {
-                    fontSize: 12,
-                    bold: false,
-                    color: 'black'
-                }
-            };
-        }
-
+        },
+        {
+            extend: 'csv',
+            text: '<i title="export to csv" class="fa fa-file-text-o"></i>',
+            exportOptions: {
+                columns: ':visible:Not(.not-exported)',
+                rows: ':visible'
             },
-            {
-                extend: 'excel',
-                text: '<i title="export to excel" class="dripicons-document-new"></i>',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
+        },
+        {
+            extend: 'print',
+            text: '<i title="print" class="fa fa-print"></i>',
+            exportOptions: {
+                columns: ':visible:Not(.not-exported)',
+                rows: ':visible'
             },
-            {
-                extend: 'csv',
-                text: '<i title="export to csv" class="fa fa-file-text-o"></i>',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-            },
-            {
-                extend: 'print',
-                text: '<i title="print" class="fa fa-print"></i>',
-                exportOptions: {
-                    columns: ':visible:Not(.not-exported)',
-                    rows: ':visible'
-                },
-            },
-            {
-                text: '<i title="delete" class="dripicons-cross"></i>',
-                className: 'buttons-delete',
-                action: function ( e, dt, node, config ) {
-                    if(user_verified == '1') {
-                        customer_id.length = 0;
-                        $(':checkbox:checked').each(function(i){
-                            if(i){
-                                customer_id[i-1] = $(this).closest('tr').data('id');
+        },
+        {
+            text: '<i title="delete" class="dripicons-cross"></i>',
+            className: 'buttons-delete',
+            action: function(e, dt, node, config) {
+                if (user_verified == '1') {
+                    customer_id.length = 0;
+                    $(':checkbox:checked').each(function(i) {
+                        if (i) {
+                            customer_id[i - 1] = $(this).closest('tr').data('id');
+                        }
+                    });
+                    if (customer_id.length && confirm("Are you sure want to delete?")) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'customer/deletebyselection',
+                            data: {
+                                customerIdArray: customer_id
+                            },
+                            success: function(data) {
+                                alert(data);
                             }
                         });
-                        if(customer_id.length && confirm("Are you sure want to delete?")) {
-                            $.ajax({
-                                type:'POST',
-                                url:'customer/deletebyselection',
-                                data:{
-                                    customerIdArray: customer_id
-                                },
-                                success:function(data){
-                                    alert(data);
-                                }
-                            });
-                            dt.rows({ page: 'current', selected: true }).remove().draw(false);
+                        dt.rows({ page: 'current', selected: true }).remove().draw(false);
+                    } else if (!customer_id.length)
+                        alert('No customer is selected!');
+                } else
+                    alert('This feature is disabled for demo!');
+            }
+        },
+        {
+            extend: 'colvis',
+            text: '<i title="column visibility" class="fa fa-eye"></i>',
+            columns: ':gt(0)'
+        },
+        {
+            text: 'Neglect Zero Values',
+            className: 'btn-toggle-zero',
+            action: function(e, dt, node, config) {
+                var zeroHidden = $(node).hasClass('zero-hidden'); // Check current state
+
+                if (zeroHidden) {
+                    // Show all rows
+                    dt.rows().every(function() {
+                        this.nodes().to$().show(); // Make all rows visible
+                    });
+                    dt.draw(); // Redraw the table
+                    $(node).removeClass('zero-hidden'); // Update button state
+                } else {
+                    // Hide rows with zero values in the 7th column (index 6)
+                    dt.rows().every(function() {
+                        var data = this.data();
+                        if (parseFloat(data[6]) === 0) { // Assuming 7th column is index 6
+                            this.nodes().to$().hide(); // Hide row with zero value
                         }
-                        else if(!customer_id.length)
-                            alert('No customer is selected!');
-                    }
-                    else
-                        alert('This feature is disable for demo!');
+                    });
+                    dt.draw(); // Redraw the table
+                    $(node).addClass('zero-hidden'); // Update button state
                 }
-            },
-            {
-                extend: 'colvis',
-                text: '<i title="column visibility" class="fa fa-eye"></i>',
-                columns: ':gt(0)'
-            },
-        ],
-    } );
+            }
+        }
+    ],
+});
+
+
+
 
   $.ajaxSetup({
         headers: {
