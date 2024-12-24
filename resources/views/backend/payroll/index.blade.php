@@ -51,7 +51,15 @@
                             </button>
                             <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
                                 <li>
-                                    <button type="button" data-id="{{$payroll->id}}" data-date="{{date('d-m-Y', strtotime($payroll->date_at))}}" data-reference="{{$payroll->reference_no}}" data-employee="{{$payroll->employee_id}}" data-account="{{$payroll->account_id}}" data-amount="{{$payroll->amount}}" data-note="{{$payroll->note}}" data-paying_method="{{$payroll->paying_method}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
+                                    <button type="button" data-id="{{$payroll->id}}" data-date="{{date('d-m-Y', strtotime($payroll->date_at))}}" data-reference="{{$payroll->reference_no}}" data-employee="{{$payroll->employee_id}}" data-account="{{$payroll->account_id}}" data-amount="{{$payroll->amount}}" data-note="{{$payroll->note}}" data-paying_method="{{$payroll->paying_method}}" data-deduction_amount="{{$payroll->deduction_amount}}" data-deduction_note="{{$payroll->deduction_note}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
+                                </li>
+                                <li>
+                                    <li>
+                                        <a href="{{ route('download.payroll', $payroll->id) }}"class="edit-btn btn btn-link"
+                                           data-id="{{$payroll->id}}">
+                                            <i class="dripicons-download"></i> {{trans('Payroll Invoice')}}
+                                        </a>
+                                    </li>
                                 </li>
                                 <li class="divider"></li>
                                 {{ Form::open(['route' => ['payroll.destroy', $payroll->id], 'method' => 'DELETE'] ) }}
@@ -93,8 +101,12 @@
                 {!! Form::open(['route' => 'payroll.store', 'method' => 'post', 'files' => true]) !!}
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label>{{trans('file.Date')}}</label>
+                        <label>{{trans('Payroll Date')}}</label>
                         <input type="text" name="date_at" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Date Of Creation')}}</label>
+                        <input type="text" name="date_of_creation" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
                     </div>
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Employee')}} *</label>
@@ -121,6 +133,14 @@
                         <input type="number" step="any" name="amount" class="form-control" required>
                     </div>
                     <div class="col-md-6 form-group">
+                        <label>{{trans('Deduction Amount')}} *</label>
+                        <input type="number" step="any" name="deduction_amount" class="form-control">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Deduction Note')}} *</label>
+                        <textarea name="deduction_note" rows="3" class="form-control"></textarea>
+                    </div>
+                    <div class="col-md-6 form-group">
                         <label>{{trans('file.Method')}} *</label>
                         <select class="form-control selectpicker" name="paying_method" required>
                             <option value="0">Cash</option>
@@ -128,10 +148,24 @@
                             <option value="2">Credit Card</option>
                         </select>
                     </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('No.Of Days')}} *</label>
+                        <input type="number" step="any" name="no_of_days" class="form-control">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Allowance')}} *</label>
+                        <input type="number" step="any" name="allowance" class="form-control">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Leave')}} *</label>
+                        <input type="number" step="any" name="leave" class="form-control">
+                    </div>
                     <div class="col-md-12 form-group">
                         <label>{{trans('file.Note')}}</label>
                         <textarea name="note" rows="3" class="form-control"></textarea>
                     </div>
+
+
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">{{trans('file.submit')}}</button>
@@ -182,6 +216,16 @@
                         <label>{{trans('file.Amount')}} *</label>
                         <input type="number" step="any" name="amount" class="form-control" required>
                     </div>
+
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Deduction Amount')}} *</label>
+                        <input type="number" step="any" name="deduction_amount" class="form-control">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Deduction Note')}} *</label>
+                        <input type="text" step="any" name="deduction_note" class="form-control">
+                    </div>
+
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Method')}} *</label>
                         <select class="form-control selectpicker" name="paying_method" required>
@@ -208,6 +252,7 @@
 @endsection
 
 @push('scripts')
+
 <script type="text/javascript">
 
     $("ul#hrm").siblings('a').attr('aria-expanded','true');
@@ -236,6 +281,8 @@
         $("#editModal select[name='employee_id']").val( $(this).data('employee') );
         $("#editModal select[name='account_id']").val( $(this).data('account') );
         $("#editModal input[name='amount']").val( $(this).data('amount') );
+        $("#editModal input[name='deduction_amount']").val( $(this).data('deduction_amount') );
+        $("#editModal input[name='deduction_note']").val( $(this).data('deduction_note') );
         $("#editModal select[name='paying_method']").val( $(this).data('paying_method') );
         $("#editModal textarea[name='note']").val( $(this).data('note') );
         $('.selectpicker').selectpicker('refresh');

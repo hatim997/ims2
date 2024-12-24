@@ -11,12 +11,23 @@ use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Mail\PayrollDetails;
+use App\Models\Department;
 use Mail;
 use App\Models\MailSetting;
 
 class PayrollController extends Controller
 {
     use \App\Traits\MailInfo;
+
+    public function DownloadPayroll($id)
+    {
+        $payroll = Payroll::findOrFail($id);
+        // dd($payroll);
+        $employee = Employee::where('id', $payroll->employee_id)->first();
+        $department = Department::where('id', $employee->department_id)->first();
+        // dd($employee);
+        return view('backend.payroll.down_payroll', compact('payroll', 'employee', 'department'));
+    }
 
     public function index()
     {
@@ -44,15 +55,17 @@ class PayrollController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-    
+        dd($data);
+
         $data['reference_no'] = 'payroll-' . date("Ymd") . '-'. date("his");
         $data['user_id'] = Auth::id();
-     
+
         $data['date_at'] = date("Y-m-d", strtotime( $data['date_at']));
                     // dd(  $data['date_at'] );
 
 
         Payroll::create($data);
+        // dd('okok');
 
 
 
@@ -93,12 +106,14 @@ class PayrollController extends Controller
 
         $lims_payroll_data = Payroll::find($data['payroll_id']);
         $data['date_at'] = date("Y-m-d", strtotime( $data['date_at']));
-       
+
         if ($lims_payroll_data) {
             $lims_payroll_data->date_at = $data['date_at']; // Assign formatted date
             $lims_payroll_data->employee_id = $data['employee_id'];
             $lims_payroll_data->account_id = $data['account_id'];
             $lims_payroll_data->amount = $data['amount'];
+            $lims_payroll_data->deduction_amount = $data['deduction_amount'];
+            $lims_payroll_data->deduction_note = $data['deduction_note'];
             $lims_payroll_data->paying_method = $data['paying_method'];
             $lims_payroll_data->note = $data['note'];
             $lims_payroll_data->save();

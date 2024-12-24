@@ -43,6 +43,15 @@
                                     @endif
                                 </div>
                                 <div class="form-group">
+                                    <label>{{trans('Date Of Joining')}} *</label>
+                                    <input type="date" name="date_of_joining" required class="form-control">
+                                    @if($errors->has('date_of_joining'))
+                                   <span>
+                                       <strong>{{ $errors->first('date_of_joining') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
+                                <div class="form-group">
                                     <label>{{trans('file.Phone Number')}} *</label>
                                     <input type="text" name="phone_number" required class="form-control">
                                 </div>

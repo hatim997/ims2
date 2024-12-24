@@ -572,6 +572,9 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
 
     Route::post('payroll/deletebyselection', [PayrollController::class, 'deleteBySelection']);
     Route::resource('payroll', PayrollController::class);
+    Route::get('/download/pay/{id}', [PayrollController::class, 'DownloadPayroll'])->name('download.payroll');
+
+
 
 
     Route::post('attendance/delete/{date}/{employee_id}', [AttendanceController::class, 'delete'])->name('attendances.delete');
@@ -622,5 +625,6 @@ Route::group(['middleware' => ['common', 'auth', 'active']], function () {
     Route::resource('custom-fields', CustomFieldController::class);
 
     Route::post('woocommerce-install', [AddonInstallController::class, 'woocommerceInstall'])->name('woocommerce.install');
+
 });
 

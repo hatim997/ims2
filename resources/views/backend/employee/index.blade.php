@@ -31,6 +31,7 @@
                     <th>{{trans('file.Image')}}</th>
                     <th>{{trans('file.name')}}</th>
                     <th>{{trans('file.Email')}}</th>
+                    <th>{{trans('Date Of Joining')}}</th>
                     <th>{{trans('file.Phone Number')}}</th>
                     <th>{{trans('file.Department')}}</th>
                     <th>{{trans('file.Address')}}</th>
@@ -39,7 +40,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($lims_employee_all as $key=>$employee)
+                @foreach($lims_employee_all as $key=> $employee)
                 @php $department = \App\Models\Department::find($employee->department_id); @endphp
                 <tr data-id="{{$employee->id}}">
                     <td>{{$key}}</td>
@@ -52,6 +53,7 @@
                     @endif
                     <td>{{ $employee->name }}</td>
                     <td>{{ $employee->email}}</td>
+                    <td>{{ \Carbon\Carbon::parse($employee->date_of_joining)->format('d F Y') }}</td>
                     <td>{{ $employee->phone_number}}</td>
                     <td>{{ $department->name }}</td>
                     <td>{{ $employee->address}}
@@ -69,7 +71,7 @@
                             <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
                                 @if(in_array("employees-edit", $all_permission))
                                 <li>
-                                    <button type="button" data-id="{{$employee->id}}" data-name="{{$employee->name}}" data-email="{{$employee->email}}" data-phone_number="{{$employee->phone_number}}" data-department_id="{{$employee->department_id}}" data-address="{{$employee->address}}" data-city="{{$employee->city}}" data-country="{{$employee->country}}" data-staff_id="{{$employee->staff_id}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
+                                    <button type="button" data-id="{{$employee->id}}" data-name="{{$employee->name}}" data-email="{{$employee->email}}" data-date_of_joining="{{$employee->date_of_joining}}" data-phone_number="{{$employee->phone_number}}" data-department_id="{{$employee->department_id}}" data-address="{{$employee->address}}" data-city="{{$employee->city}}" data-country="{{$employee->country}}" data-staff_id="{{$employee->staff_id}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
                                 </li>
                                 @endif
                                 <li class="divider"></li>
@@ -122,6 +124,12 @@
                         <label>{{trans('file.Email')}} *</label>
                         <input type="email" name="email" required class="form-control">
                     </div>
+
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Date of joining')}} *</label>
+                        <input type="date" name="date_of_joining" required class="form-control">
+                    </div>
+
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Phone Number')}} *</label>
                         <input type="text" name="phone_number" required class="form-control">
@@ -198,10 +206,15 @@
     }
 
     $(document).on('click', '.edit-btn', function() {
+        // Get the data attributes from the clicked button
+        let date_of_joining = $(this).data('date_of_joining');
+        let formatted_date = date_of_joining.split(' ')[0];
+
         $("#editModal input[name='employee_id']").val( $(this).data('id') );
         $("#editModal input[name='name']").val( $(this).data('name') );
         $("#editModal select[name='department_id']").val( $(this).data('department_id') );
         $("#editModal input[name='email']").val( $(this).data('email') );
+        $("#editModal input[name='date_of_joining']").val(formatted_date);
         $("#editModal input[name='phone_number']").val( $(this).data('phone_number') );
         $("#editModal input[name='address']").val( $(this).data('address') );
         $("#editModal input[name='city']").val( $(this).data('city') );

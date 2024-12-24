@@ -54,6 +54,7 @@ class EmployeeController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->toArray());
         $data = $request->except('image');
         $message = 'Employee created successfully';
         if(isset($data['user'])){
@@ -116,6 +117,7 @@ class EmployeeController extends Controller
 
     public function update(Request $request, $id)
     {
+        // dd($request->toArray());
         $lims_employee_data = Employee::find($request['employee_id']);
         if($lims_employee_data->user_id){
             $this->validate($request, [
