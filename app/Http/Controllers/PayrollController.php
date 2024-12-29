@@ -55,7 +55,7 @@ class PayrollController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        dd($data);
+        // dd($data);
 
         $data['reference_no'] = 'payroll-' . date("Ymd") . '-'. date("his");
         $data['user_id'] = Auth::id();
@@ -115,6 +115,12 @@ class PayrollController extends Controller
             $lims_payroll_data->deduction_amount = $data['deduction_amount'];
             $lims_payroll_data->deduction_note = $data['deduction_note'];
             $lims_payroll_data->paying_method = $data['paying_method'];
+
+            $lims_payroll_data->month = $data['month'];
+            $lims_payroll_data->year = $data['year'];
+            $lims_payroll_data->no_of_days = $data['no_of_days'];
+            $lims_payroll_data->allowance = $data['allowance'];
+            $lims_payroll_data->leave = $data['leave'];
             $lims_payroll_data->note = $data['note'];
             $lims_payroll_data->save();
 

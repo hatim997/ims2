@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <title>Payroll Voucher</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo/20230927110325.png') }}">
+    <title>Ovation Payroll Voucher</title>
     <style>
         .borderless td {
             border: none;
@@ -33,7 +34,7 @@
         <!-- Payroll Details Section -->
         <div class="table row py-2">
             <div class="col-md-6 d-flex">
-                <strong class="me-4">Date of Join:</strong>
+                <strong class="me-3">Date of Join:</strong>
                 <span>{{ \Carbon\Carbon::parse($employee->date_of_joining)->format('d F Y') }}</span>
             </div>
             <div class="col-md-6 d-flex">
@@ -41,12 +42,17 @@
                 <span>{{ $employee->name }}</span>
             </div>
             <div class="col-md-6 d-flex">
-                <strong class="me-5">Pay Period:</strong>
-                <span>{{ \Carbon\Carbon::parse($payroll->date_at)->format('F Y') }}</span>
+                <strong class="me-4">Pay Period:</strong>&nbsp;
+                <span>{{ $payroll->month }}, {{ $payroll->year }} </span>
             </div>
+
             <div class="col-md-6 d-flex">
                 <strong class="me-5">Department:</strong>
                 <span>{{ $department->name }}</span>
+            </div>
+            <div class="col-md-6 d-flex">
+                <strong class="me-4">Num of Days:</strong>&nbsp;
+                <span>{{ $payroll->no_of_days }}</span>
             </div>
         </div>
 
@@ -56,41 +62,100 @@
             <table class="table borderless table-bordered">
                 <thead class="bg-primary text-white">
                     <tr>
+                        <th>Description</th>
                         <th>Earnings</th>
+                        <th>Deductions</th>
+                        <th>Notes</th>
                         <th>Amount</th>
-                        <th>Deduction</th>
-                        <th>Net Pay</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Basic Salary Row -->
                     <tr>
                         <td>Basic Salary</td>
-                        <td>{{ $payroll->amount }}</td>
-                        <td>{{ $payroll->deduction_amount }}</td>
-                        @php
-                            $netpay = $payroll->amount - $payroll->deduction_amount;
-                        @endphp
-                        <td>{{ $netpay }}</td>
+                        <td>{{ number_format($payroll->amount, 2) }}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>{{ number_format($payroll->amount, 2) }}</td> <!-- Display the amount for Basic Salary -->
                     </tr>
+                    <!-- Allowance Row -->
                     <tr>
-                        <td>Tax Deduction</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
+                        <td>Allowance</td>
+                        <td>{{ number_format($payroll->allowance, 2) }}</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>{{ number_format($payroll->allowance, 2) }}</td> <!-- Display the amount for Allowance -->
+                    </tr>
+                    <!-- Leave Row -->
+                    <tr>
+                        <td>Leave</td>
+                        <td>-</td>
+                        <td>{{ $payroll->leave }}</td>
+                        <td>Number of Leaves {{ $payroll->leave }}</td>
+                        <td>-</td> <!-- No specific amount for leave -->
+                    </tr>
+                    <!-- Deduction Row -->
+                    <tr>
+                        <td>Deductions</td>
+                        <td>-</td>
+                        <td>{{ number_format($payroll->deduction_amount, 2) }}</td>
+                        <td>{{ $payroll->deduction_note }}</td>
+                        <td>{{ number_format($payroll->deduction_amount, 2) }}</td> <!-- Display the amount for Deductions -->
                     </tr>
                 </tbody>
                 <tfoot>
+                    <!-- Net Pay Row -->
                     <tr>
-                        <td colspan="3" class="text-end"><strong>Total</strong></td>
-                        <td><strong>{{ $netpay }}</strong></td>
+                        <td colspan="4" class="text-end"><strong>Total</strong></td>
+                        @php
+                            $netpay = $payroll->amount - $payroll->deduction_amount + $payroll->allowance;
+                        @endphp
+                        <td colspan="2"><strong>{{ number_format($netpay, 2) }}</strong></td> <!-- Total Net Pay -->
                     </tr>
                 </tfoot>
             </table>
+
         </div>
 
-        <div class="d-flex justify-content-center align-items-center">
-            <span>{{ number_format($netpay, 2) }}</span>
-        </div>
+        @php
+    use NumberToWords\NumberToWords;
+
+    // Initialize NumberToWords
+    $numberToWords = new NumberToWords();
+    $locale = app()->getLocale();
+    $supportedLocales = ['en', 'fr', 'es', 'de'];
+
+    // Check if the current locale is supported
+    if (in_array($locale, $supportedLocales)) {
+        $numberTransformer = $numberToWords->getNumberTransformer($locale);
+    } else {
+        $numberTransformer = $numberToWords->getNumberTransformer('en');
+    }
+
+    // Convert the integer part of the netpay to words
+    $netpayInWords = $numberTransformer->toWords(floor($netpay));
+
+    // Convert the decimal part (cents) of the netpay to words if it exists
+    $decimalPart = round($netpay - floor($netpay), 2) * 100;
+    $decimalInWords = $numberTransformer->toWords($decimalPart);
+
+    // Concatenate the amount in words
+    if ($decimalPart > 0) {
+        $fullAmountInWords = ucfirst($netpayInWords) . ' and ' . $decimalInWords . ' cents only';
+    } else {
+        $fullAmountInWords = ucfirst($netpayInWords) . ' only';
+    }
+
+    // Add the currency (PKR) to the amount
+    $currency = 'PKR';
+    $fullAmountInWords = $currency . ' ' . $fullAmountInWords;
+@endphp
+
+<div class="d-flex justify-content-center align-items-center">
+    <p>{{ $fullAmountInWords }}</p>
+</div>
+
+
 
         <!-- Signature Section -->
         <div class="row mt-5">
@@ -104,11 +169,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    {{-- <script>
+    <script>
         // Trigger print dialog on page load
         window.onload = function() {
             window.print();
         };
-    </script> --}}
+    </script>
 </body>
 </html>

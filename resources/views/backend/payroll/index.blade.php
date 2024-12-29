@@ -51,7 +51,12 @@
                             </button>
                             <ul class="dropdown-menu edit-options dropdown-menu-right dropdown-default" user="menu">
                                 <li>
-                                    <button type="button" data-id="{{$payroll->id}}" data-date="{{date('d-m-Y', strtotime($payroll->date_at))}}" data-reference="{{$payroll->reference_no}}" data-employee="{{$payroll->employee_id}}" data-account="{{$payroll->account_id}}" data-amount="{{$payroll->amount}}" data-note="{{$payroll->note}}" data-paying_method="{{$payroll->paying_method}}" data-deduction_amount="{{$payroll->deduction_amount}}" data-deduction_note="{{$payroll->deduction_note}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
+                                    <button type="button" data-id="{{$payroll->id}}" data-date="{{date('d-m-Y', strtotime($payroll->date_at))}}" data-reference="{{$payroll->reference_no}}" data-employee="{{$payroll->employee_id}}" data-account="{{$payroll->account_id}}" data-amount="{{$payroll->amount}}" data-note="{{$payroll->note}}" data-paying_method="{{$payroll->paying_method}}" data-deduction_amount="{{$payroll->deduction_amount}}" data-deduction_note="{{$payroll->deduction_note}}"
+                                        data-month="{{$payroll->month}}"
+                                        data-year="{{$payroll->year}}"
+                                        data-no_of_days="{{$payroll->no_of_days}}"
+                                        data-allowance="{{$payroll->allowance}}"
+                                        data-leave="{{$payroll->leave}}" class="edit-btn btn btn-link" data-toggle="modal" data-target="#editModal"><i class="dripicons-document-edit"></i> {{trans('file.edit')}}</button>
                                 </li>
                                 <li>
                                     <li>
@@ -100,13 +105,26 @@
               <p class="italic"><small>{{trans('file.The field labels marked with * are required input fields')}}.</small></p>
                 {!! Form::open(['route' => 'payroll.store', 'method' => 'post', 'files' => true]) !!}
                 <div class="row">
-                    <div class="col-md-6 form-group">
+                    <div class="col-md-4 form-group">
                         <label>{{trans('Payroll Date')}}</label>
                         <input type="text" name="date_at" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
                     </div>
-                    <div class="col-md-6 form-group">
-                        <label>{{trans('Date Of Creation')}}</label>
-                        <input type="text" name="date_of_creation" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
+                    <div class="col-md-4 form-group">
+                        <label>{{ trans('Month') }}</label>
+                        <select class="form-control selectpicker" name="month" required data-live-search="true" data-live-search-style="begins" title="Select Month...">
+                            @foreach(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $month)
+                                <option value="{{ $month }}">{{ $month }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>{{trans('Year')}}</label>
+                        <select class="form-control selectpicker" name="year" required data-live-search="true" data-live-search-style="begins" title="Select Year...">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                        </select>
                     </div>
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Employee')}} *</label>
@@ -132,14 +150,7 @@
                         <label>{{trans('file.Amount')}} *</label>
                         <input type="number" step="any" name="amount" class="form-control" required>
                     </div>
-                    <div class="col-md-6 form-group">
-                        <label>{{trans('Deduction Amount')}} *</label>
-                        <input type="number" step="any" name="deduction_amount" class="form-control">
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <label>{{trans('Deduction Note')}} *</label>
-                        <textarea name="deduction_note" rows="3" class="form-control"></textarea>
-                    </div>
+
                     <div class="col-md-6 form-group">
                         <label>{{trans('file.Method')}} *</label>
                         <select class="form-control selectpicker" name="paying_method" required>
@@ -148,6 +159,18 @@
                             <option value="2">Credit Card</option>
                         </select>
                     </div>
+
+                    <label class="col-md-12 form-group font-weight-bold">Deduction Section</label>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Deduction Amount')}} *</label>
+                        <input type="number" step="any" name="deduction_amount" class="form-control">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Deduction Note')}} *</label>
+                        <textarea name="deduction_note" rows="2" class="form-control"></textarea>
+                    </div>
+
+                    <label class="col-md-12 form-group font-weight-bold">Allowance Section</label>
                     <div class="col-md-6 form-group">
                         <label>{{trans('No.Of Days')}} *</label>
                         <input type="number" step="any" name="no_of_days" class="form-control">
@@ -187,9 +210,26 @@
               <p class="italic"><small>{{trans('file.The field labels marked with * are required input fields')}}.</small></p>
                 {!! Form::open(['route' => ['payroll.update', 1], 'method' => 'put', 'files' => true]) !!}
                 <div class="row">
-                    <div class="col-md-6 form-group">
-                        <label>{{trans('file.Date')}}</label>
-                        <input type="text" name="date_at" class="form-control date" placeholder="Choose date" />
+                    <div class="col-md-4 form-group">
+                        <label>{{trans('Payroll Date')}}</label>
+                        <input type="text" name="date_at" class="form-control date" placeholder="Choose date" value="{{date('d-m-Y')}}" />
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>{{ trans('Month') }}</label>
+                        <select class="form-control selectpicker" name="month" required data-live-search="true" data-live-search-style="begins" title="Select Month...">
+                            @foreach(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $month)
+                                <option value="{{ $month }}">{{ $month }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label>{{trans('Year')}}</label>
+                        <select class="form-control selectpicker" name="year" required data-live-search="true" data-live-search-style="begins" title="Select Year...">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                        </select>
                     </div>
                     <div class="col-md-6 form-group">
                         <input type="hidden" name="payroll_id">
@@ -216,7 +256,16 @@
                         <label>{{trans('file.Amount')}} *</label>
                         <input type="number" step="any" name="amount" class="form-control" required>
                     </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('file.Method')}} *</label>
+                        <select class="form-control selectpicker" name="paying_method" required>
+                            <option value="0">Cash</option>
+                            <option value="1">Cheque</option>
+                            <option value="2">Credit Card</option>
+                        </select>
+                    </div>
 
+                    <label class="col-md-12 form-group font-weight-bold">Deduction Section</label>
                     <div class="col-md-6 form-group">
                         <label>{{trans('Deduction Amount')}} *</label>
                         <input type="number" step="any" name="deduction_amount" class="form-control">
@@ -226,14 +275,20 @@
                         <input type="text" step="any" name="deduction_note" class="form-control">
                     </div>
 
+                    <label class="col-md-12 form-group font-weight-bold">Allowance Section</label>
                     <div class="col-md-6 form-group">
-                        <label>{{trans('file.Method')}} *</label>
-                        <select class="form-control selectpicker" name="paying_method" required>
-                            <option value="0">Cash</option>
-                            <option value="1">Cheque</option>
-                            <option value="2">Credit Card</option>
-                        </select>
+                        <label>{{trans('No.Of Days')}} *</label>
+                        <input type="number" step="any" name="no_of_days" class="form-control">
                     </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Allowance')}} *</label>
+                        <input type="number" step="any" name="allowance" class="form-control">
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label>{{trans('Leave')}} *</label>
+                        <input type="number" step="any" name="leave" class="form-control">
+                    </div>
+
                     <div class="col-md-12 form-group">
                         <label>{{trans('file.Note')}}</label>
                         <textarea name="note" rows="3" class="form-control"></textarea>
@@ -276,17 +331,22 @@
     }
 
     $(document).on('click', '.edit-btn', function() {
-        $("#editModal input[name='payroll_id']").val( $(this).data('id') );
-        $("#editModal input[name='date_at']").val( $(this).data('date') );
-        $("#editModal select[name='employee_id']").val( $(this).data('employee') );
-        $("#editModal select[name='account_id']").val( $(this).data('account') );
-        $("#editModal input[name='amount']").val( $(this).data('amount') );
-        $("#editModal input[name='deduction_amount']").val( $(this).data('deduction_amount') );
-        $("#editModal input[name='deduction_note']").val( $(this).data('deduction_note') );
-        $("#editModal select[name='paying_method']").val( $(this).data('paying_method') );
-        $("#editModal textarea[name='note']").val( $(this).data('note') );
-        $('.selectpicker').selectpicker('refresh');
-    });
+    $("#editModal input[name='payroll_id']").val($(this).data('id'));
+    $("#editModal input[name='date_at']").val($(this).data('date'));
+    $("#editModal select[name='employee_id']").val($(this).data('employee'));
+    $("#editModal select[name='account_id']").val($(this).data('account'));
+    $("#editModal input[name='amount']").val($(this).data('amount'));
+    $("#editModal input[name='deduction_amount']").val($(this).data('deduction_amount'));
+    $("#editModal input[name='deduction_note']").val($(this).data('deduction_note'));
+    $("#editModal select[name='month']").val($(this).data('month')).selectpicker('refresh');
+    $("#editModal select[name='year']").val($(this).data('year')).selectpicker('refresh');
+    $("#editModal input[name='no_of_days']").val($(this).data('no_of_days'));
+    $("#editModal input[name='allowance']").val($(this).data('allowance'));
+    $("#editModal input[name='leave']").val($(this).data('leave'));
+    $("#editModal select[name='paying_method']").val($(this).data('paying_method')).selectpicker('refresh');
+    $("#editModal textarea[name='note']").val($(this).data('note'));
+    $('.selectpicker').selectpicker('refresh');
+});
 
     $('#payroll-table').DataTable( {
         "order": [],
