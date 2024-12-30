@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Permission;
 use Carbon\Carbon;
 use Auth;
 use DB;
+use App\Models\User;
 
 class ExpenseController extends Controller
 {
@@ -208,14 +209,15 @@ class ExpenseController extends Controller
     {
         $expense = Expense::with('expenseCategory')->find($id); // Fetch expense by ID
 
-        // dd($expense);
+        $user = User::where('id', $expense->user_id)->first();
+        // dd($user);
 
         if (!$expense) {
             return response()->json(['error' => 'Expense not found'], 404);
         }
 
         // Return the invoice view with the expense data
-        return view('backend.invoice.invoice', compact('expense'));
+        return view('backend.invoice.invoice', compact('expense', 'user'));
     }
 
     public function create()

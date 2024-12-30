@@ -71,23 +71,23 @@
         <!-- Additional Section -->
         <div class="row" style="margin-top: 4.5rem !important;">
             <div class="col">
-                <p class="fw-bold">AUTHORIZED <span class="underline">______________</span></p>
+                <p class="fw-bold">AUTHORIZED: <span class="underline">______________</span></p>
             </div>
             <div class="col">
-                <p class="fw-bold">ACCOUNTANT <span class="underline">______________</span></p>
+                <p class="fw-bold">ACCOUNTANT: <span class="underline" style="text-decoration: underline;">{{ $user->name }}</span></p>
             </div>
             <div class="col">
-                <p class="fw-bold">RECIEVER SIGNATURE <span class="underline">_______________</span></p>
+                <p class="fw-bold">RECIEVER SIGNATURE: <span class="underline">_______________</span></p>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    {{-- <script>
         // Page load hone par print dialog kholna
         window.onload = function() {
             window.print();
         };
-    </script>
+    </script> --}}
 </body>
 </html>
